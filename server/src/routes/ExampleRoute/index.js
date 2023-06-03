@@ -1,9 +1,9 @@
-const express = require("express");
+function endpoint(app) {
+  console.log("hello world");
+  app.get("/", (req, res) => {
+    console.log("wtf buddy");
+    res.json("hello world");
+  });
+}
 
-const router = express.Router();
-
-router.get("/", (req, res) => {
-  res.json("hello world");
-});
-
-module.exports = router;
+module.exports = endpoint;

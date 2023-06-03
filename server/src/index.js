@@ -1,13 +1,25 @@
 const express = require("express");
-const app = express();
-const port = 3000;
+require("dotenv").config();
+const path = require("path");
+const fs = require("fs");
 
-const exampleRouter = require("./routes/ExampleRoute/index");
-
-app.listen(port, () => {
-  console.log("listening on port " + port);
+main().catch((err) => {
+  console.log(`An error occurred: ${err}`);
 });
 
-app.use("/", exampleRouter);
+async function main() {
+  const app = express();
 
-module.exports = app;
+  const PORT = process.env.PORT;
+
+  app.listen(PORT, () => {
+    console.log("listening on port " + PORT);
+  });
+
+  const routeDir = path.join(__dirname, "routes");
+  const routes = await fs.promises.readdir(routeDir);
+  for (const routeFile of routes) {
+    const endpoint = require(`./routes/${routeFile}/index.js`);
+    endpoint(app);
+  }
+}
