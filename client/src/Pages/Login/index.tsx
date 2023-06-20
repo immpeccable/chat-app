@@ -5,7 +5,7 @@ import { redirect, useNavigate } from "react-router-dom";
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
-
+  console.log("login page is rendering");
   const { mutate, isLoading } = useMutation({
     mutationFn: () =>
       handleLogin(

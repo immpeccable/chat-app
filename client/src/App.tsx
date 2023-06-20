@@ -8,8 +8,7 @@ import { Home } from "./Pages/Home";
 
 export const App: React.FC = () => {
   return (
-    <div className="min-h-[100vh] bg-black bg-opacity-90">
-      <Header />
+    <div className="min-h-[100vh] bg-[rgb(19,27,32)] p-4">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />

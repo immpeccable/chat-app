@@ -1,6 +1,7 @@
 const validator = require("validator");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const { ObjectId } = require("mongodb");
 
 const Schema = mongoose.Schema;
 
@@ -32,8 +33,28 @@ UserSchema.methods.validatePassword = async function (password) {
   return result;
 };
 
+const FriendRequestSchema = new Schema({
+  from: { type: String },
+  to: { type: String },
+});
+
+FriendRequestSchema.methods.validateUniqueness = async function () {
+  const request1 = FriendRequestModel.find({
+    from: this.to,
+    to: this.from,
+  });
+  const request2 = FriendRequestModel.find({
+    from: this.from,
+    to: this.to,
+  });
+
+  return !(request1 || request2);
+};
+
 const UserModel = mongoose.model("User", UserSchema);
+const FriendRequestModel = mongoose.model("FriendRequest", FriendRequestSchema);
 
 module.exports = {
   UserModel,
+  FriendRequestModel,
 };
