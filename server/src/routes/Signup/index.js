@@ -13,6 +13,7 @@ function endpoint(app) {
         friends: [],
       });
 
+      await newUser.setPassword(password);
       newUser
         .save()
         .then(() => {

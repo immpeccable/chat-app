@@ -4,6 +4,7 @@ import { Landing } from "./Pages/Landing";
 import { Signup } from "./Pages/Signup";
 import { Login } from "./Pages/Login";
 import { Header } from "./Components/Header";
+import { Home } from "./Pages/Home";
 
 export const App: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ export const App: React.FC = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/sign-up" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/home" element={<Home />} />
         </Routes>
       </BrowserRouter>
     </div>

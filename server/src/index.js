@@ -6,7 +6,6 @@ const cors = require("cors");
 const socketIO = require("socket.io");
 const http = require("http");
 const bodyParser = require("body-parser");
-const { MongoClient, ServerApiVersion } = require("mongodb");
 const username = process.env.username;
 const password = process.env.password;
 const appname = process.env.appname;
