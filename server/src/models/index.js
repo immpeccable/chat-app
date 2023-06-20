@@ -39,16 +39,17 @@ const FriendRequestSchema = new Schema({
 });
 
 FriendRequestSchema.methods.validateUniqueness = async function () {
-  const request1 = FriendRequestModel.find({
+  console.log("hello validating");
+  const request1 = await FriendRequestModel.find({
     from: this.to,
     to: this.from,
   });
-  const request2 = FriendRequestModel.find({
+  const request2 = await FriendRequestModel.find({
     from: this.from,
     to: this.to,
   });
-
-  return !(request1 || request2);
+  console.log("herea re the requests: ", request1, request2);
+  return !request1.length && !request2.length;
 };
 
 const UserModel = mongoose.model("User", UserSchema);

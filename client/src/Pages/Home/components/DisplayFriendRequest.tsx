@@ -1,5 +1,10 @@
-import React, { ReactNode, useRef } from "react";
+import React, { ReactNode, useRef, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
+import { I_FRIEND_REQUEST, I_USER } from "../../../types";
+import { useQuery } from "@tanstack/react-query";
+import { displayFriendRequest } from "../api";
+import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface I_PROPS {
   isDisplayFriendRequestSectionOpen: boolean;
@@ -10,6 +15,22 @@ export default function DisplayFriendRequest({
   isDisplayFriendRequestSectionOpen,
   setIsDisplayFriendRequestSectionOpen,
 }: I_PROPS): ReactNode {
+  const [friendRequests, setFriendRequests] = useState<I_FRIEND_REQUEST[]>([]);
+  const navigate = useNavigate();
+  const { isLoading } = useQuery({
+    queryFn: () => displayFriendRequest(),
+    queryKey: ["displayFriendRequest"],
+    onSuccess: (result) => {
+      setFriendRequests(result?.data.requests);
+    },
+    onError: (err: AxiosError) => {
+      if (err.response?.status == 401) {
+        navigate("/");
+        localStorage.removeItem("jwt");
+      }
+    },
+  });
+
   return (
     <aside
       className={`flex flex-col items-center bg-darkGreen border-r-white border-r-[1px] border-opacity-40 transition-all absolute left-4 top-4 duration-200 overflow-hidden ease-in-out z-20 ${
@@ -33,7 +54,27 @@ export default function DisplayFriendRequest({
           </h3>
         </div>
       </header>
-
+      <ul className="w-full px-12 mt-8">
+        {friendRequests.map((request: I_FRIEND_REQUEST) => {
+          return (
+            <li className="flex flex-row py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full">
+              <img src={tmpImg} className="w-8 h-8 rounded-full" />
+              <div className="flex flex-col">
+                <h2 className="text-md">{request.from}</h2>
+                <h3 className="text-sm opacity-70">dummy data</h3>
+              </div>
+              <div className="flex flex-col gap-2">
+                <button className="ml-auto">
+                  <img src={tmpImg} className="w-6 h-6" />
+                </button>
+                <button className="ml-auto">
+                  <img src={tmpImg} className="w-6 h-6" />
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
       {/* you are supposed to render friends here */}
     </aside>
   );

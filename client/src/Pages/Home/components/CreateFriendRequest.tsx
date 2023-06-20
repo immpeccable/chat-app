@@ -1,9 +1,11 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
 import { useDebounceValue } from "../hooks/useDebounceValue";
-import { useQuery } from "@tanstack/react-query";
-import { findByUsername } from "../api";
-import { I_USER } from "../../Signup/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { findByUsername, sendFriendRequest } from "../api";
+import { I_USER } from "../../../types";
+import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface I_PROPS {
   isCreateFriendRequestSectionOpen: boolean;
@@ -18,16 +20,27 @@ export default function CreateFriendRequest({
 }: I_PROPS): ReactNode {
   const [searchParam, setSearchParam] = useState("");
   const debouncedSearchParam = useDebounceValue(searchParam, DEBOUNCE_TIMEOUT);
-  const jwt = localStorage.getItem("jwt");
-
+  const navigate = useNavigate();
   const { isLoading, data, refetch } = useQuery({
-    queryFn: () => findByUsername(jwt, debouncedSearchParam),
+    queryFn: () => findByUsername(debouncedSearchParam),
     queryKey: ["findByUsername"],
+    onError: (err: AxiosError) => {
+      if (err.response?.status == 401) {
+        navigate("/");
+        localStorage.removeItem("jwt");
+      }
+    },
   });
 
   useEffect(() => {
+    if (!debouncedSearchParam) return;
     refetch();
   }, [debouncedSearchParam]);
+
+  const { mutate: createFriendRequest } = useMutation({
+    mutationFn: (to: I_USER) => sendFriendRequest(to),
+    mutationKey: ["sendFriendRequest"],
+  });
 
   return (
     <aside
@@ -61,9 +74,23 @@ export default function CreateFriendRequest({
           setSearchParam(e.target.value);
         }}
       />
-      <ul>
+      <ul className="w-full px-12 mt-8">
         {data?.users?.map((user: I_USER) => {
-          return <li>{user.username}</li>;
+          return (
+            <li className="flex flex-row py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full">
+              <img src={tmpImg} className="w-8 h-8 rounded-full" />
+              <div className="flex flex-col">
+                <h2 className="text-md">{user.username}</h2>
+                <h3 className="text-sm opacity-70">dummy data</h3>
+              </div>
+              <button
+                onClick={() => createFriendRequest(user)}
+                className="ml-auto"
+              >
+                <img src={tmpImg} className="w-6 h-6" />
+              </button>
+            </li>
+          );
         })}
       </ul>
       {/* you are supposed to render friends here */}

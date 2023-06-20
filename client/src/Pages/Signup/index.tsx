@@ -1,7 +1,8 @@
 import React, { useReducer } from "react";
-import { I_ACTION, I_USER, ACTION_TYPES } from "./types";
+import { I_ACTION, I_USER, ACTION_TYPES } from "../../types";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { newUser } from "./api";
+import { useNavigate } from "react-router-dom";
 
 function reducer(state: I_USER, action: I_ACTION): I_USER {
   console.log(state);
@@ -27,12 +28,13 @@ export const Signup: React.FC = () => {
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   const { mutate, isLoading } = useMutation({
     mutationFn: () => newUser(userState),
     mutationKey: ["new-user"],
-    onSuccess: (res) => {
-      console.log(res);
+    onSuccess: () => {
+      navigate("/login");
     },
     onError: (err) => {
       console.log(err);

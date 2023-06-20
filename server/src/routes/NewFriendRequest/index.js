@@ -3,21 +3,20 @@ const { createJWT, validateJWT } = require("../../validators/index.js");
 
 function endpoint(app) {
   app.post("/new-friend-request", validateJWT, async (req, res) => {
-    const { from, to } = req.body;
+    const { to } = req.body;
     try {
       const friendRequest = new FriendRequestModel({
-        from: from,
-        to: to,
+        from: req.user.username,
+        to: to.username,
       });
-
-      if (friendRequest.validateUniqueness()) {
+      const isValidRequest = await friendRequest.validateUniqueness();
+      if (isValidRequest) {
         const result = await friendRequest.save();
-        console.log(result);
         return res.status(200).json({
           message: `Request saved successfully`,
         });
       } else {
-        return res.status(402).json({
+        return res.status(412).json({
           message: "Request already exists",
         });
       }

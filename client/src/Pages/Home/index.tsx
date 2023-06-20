@@ -4,8 +4,10 @@ import tmpImg from "../../assets/react.svg";
 import CreateFriendRequest from "./components/CreateFriendRequest";
 import DisplayFriendRequest from "./components/DisplayFriendRequest";
 import CreateGroup from "./components/CreateGroup";
+import { useNavigate } from "react-router-dom";
 
 export const Home: React.FC = () => {
+  const navigate = useNavigate();
   const [isCreateGroupSectionOpen, setIsCreateGroupSectionOpen] =
     useState(false);
   const [
@@ -17,6 +19,11 @@ export const Home: React.FC = () => {
     isDisplayFriendRequestSectionOpen,
     setIsDisplayFriendRequestSectionOpen,
   ] = useState(false);
+
+  async function handleLogout() {
+    localStorage.removeItem("jwt");
+    navigate("/");
+  }
 
   //   const { refetch, isLoading } = useQuery({
   //     queryFn: () => mockRequest(JWT),
@@ -72,8 +79,8 @@ export const Home: React.FC = () => {
           setIsDisplayFriendRequestSectionOpen
         }
       />
-      <section className="">
-        <header></header>
+      <section className="ml-20">
+        <button onClick={handleLogout}>LOGOUT</button>
       </section>
     </main>
   );

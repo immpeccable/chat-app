@@ -2,19 +2,23 @@ const { UserModel } = require("../../models/index.js");
 const { createJWT, validateJWT } = require("../../validators/index.js");
 
 function endpoint(app) {
-  app.get("/find-people", validateJWT, async (req, res) => {
+  app.get("/find-possible-friends", validateJWT, async (req, res) => {
     const { username } = req.query;
+    console.log("find possible usernameeeeee: ", username);
     try {
       if (!username) {
-        return res.sendStatus(401).json({
+        res.status(404).json({
           message: "Invalid input.",
         });
+        return;
       }
       const users = await UserModel.find({
-        username: { $regex: username },
+        $and: [
+          { username: { $regex: username } },
+          { username: { $ne: req.user.username } },
+          { username: { $not: { $in: req.user.friends } } },
+        ],
       });
-
-      console.log(users);
       res.json({
         users: users,
       });

@@ -14,3 +14,8 @@ export enum ACTION_TYPES {
   changePassword,
   changeEmail,
 }
+
+export interface I_FRIEND_REQUEST {
+  from: string;
+  to: string;
+}

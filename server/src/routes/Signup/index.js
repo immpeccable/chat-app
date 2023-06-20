@@ -24,6 +24,10 @@ function endpoint(app) {
           console.error("Error saving user:", error);
           res.sendStatus(500);
         });
+
+      res.status(200).json({
+        message: "User created successfully",
+      });
     } catch (err) {
       console.error(err);
       res.sendStatus(500);
