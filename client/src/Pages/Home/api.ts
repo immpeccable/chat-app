@@ -87,3 +87,37 @@ export async function fetchFriends(searchUsername: string): Promise<I_USER[]> {
   console.log("friend requests: ", result);
   return result.data.friends;
 }
+
+export async function createChatroom(
+  participants: I_USER[],
+  groupName: string | undefined
+) {
+  const jwt = localStorage.getItem("jwt");
+  if (!groupName || !participants || !jwt) return;
+  console.log("createChatroom1");
+  const response = await axios.post(
+    `${ENDPOINT}/new-chatroom`,
+    {
+      participants: participants,
+      groupName: groupName,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    }
+  );
+  console.log("chatroom created: ", response);
+  return response;
+}
+
+export async function fetchChatrooms() {
+  const jwt = localStorage.getItem("jwt");
+  const response = await axios.get(`${ENDPOINT}/chatrooms`, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  console.log("chatrooms for user: ", response.data.chatrooms);
+  return response.data.chatrooms;
+}

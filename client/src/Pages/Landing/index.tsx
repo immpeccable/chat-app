@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header } from "../../Components/Header";
 
 export const Landing: React.FC = () => {
-  
   const navigate = useNavigate();
   const jwt = localStorage.getItem("jwt");
-  if (jwt) {
-    navigate("/home");
-  }
+  useEffect(() => {
+    if (jwt) {
+      navigate("/home");
+    }
+  }, [jwt, navigate]);
 
   return (
     <>

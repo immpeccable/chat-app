@@ -19,6 +19,7 @@ const UserSchema = new Schema({
     },
     unique: true,
   },
+  chatrooms: { type: [], default: [], required: false },
   password: { type: String, required: true },
   friends: { type: [], default: [], required: false },
 });
@@ -52,10 +53,27 @@ FriendRequestSchema.methods.validateUniqueness = async function () {
   return !request1.length && !request2.length;
 };
 
+const ChatroomSchema = new Schema({
+  owner: { type: String, required: true, maxLength: 50 },
+  participants: { type: [], default: [], required: true },
+  authorized_participants: { type: [], default: [], required: true },
+  name: { type: String, required: true, maxLength: 100 },
+  messages: { type: [], default: [], required: false },
+});
+
+const MessageSchema = new Schema({
+  from: { type: String, required: true, maxLength: 50 },
+  content: { type: String, required: true },
+});
+
+const MessageModel = mongoose.model("Message", MessageSchema);
 const UserModel = mongoose.model("User", UserSchema);
 const FriendRequestModel = mongoose.model("FriendRequest", FriendRequestSchema);
+const ChatroomModel = mongoose.model("ChatRoom", ChatroomSchema);
 
 module.exports = {
   UserModel,
   FriendRequestModel,
+  MessageModel,
+  ChatroomModel,
 };

@@ -1,4 +1,5 @@
 export interface I_USER {
+  id: string;
   username: string;
   password: string;
   email: string;
@@ -18,4 +19,17 @@ export enum ACTION_TYPES {
 export interface I_FRIEND_REQUEST {
   from: string;
   to: string;
+}
+
+export interface I_MESSAGE {
+  from: string;
+  content: string;
+}
+
+export interface I_CHATROOM {
+  owner: string;
+  participants: (string | I_USER)[];
+  authorized_participants: (string | I_USER)[];
+  name: string;
+  messages: I_MESSAGE[];
 }

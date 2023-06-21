@@ -5,6 +5,9 @@ import CreateFriendRequest from "./components/CreateFriendRequest";
 import DisplayFriendRequest from "./components/DisplayFriendRequest";
 import CreateGroup from "./components/CreateGroup";
 import { useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
+import { fetchChatrooms } from "./api";
+import { I_CHATROOM } from "../../types";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +22,18 @@ export const Home: React.FC = () => {
     isDisplayFriendRequestSectionOpen,
     setIsDisplayFriendRequestSectionOpen,
   ] = useState(false);
+
+  const { data: chatrooms, isLoading: isChatroomsLoading } = useQuery({
+    queryFn: fetchChatrooms,
+    queryKey: ["getChatrooms"],
+    onSuccess: (res) => {
+      // console.log("chatrooms: ", res);
+    },
+    onError: (err: AxiosError) => {
+      console.log("chatrooms: ", err.response);
+    },
+  });
+  // console.log(isChatroomsLoading);
 
   async function handleLogout() {
     localStorage.removeItem("jwt");
@@ -62,6 +77,25 @@ export const Home: React.FC = () => {
             placeholder="Arayın veya yeni sohbet başlatın"
           />
         </div>
+        <ul className="mt-10 w-full px-4">
+          {chatrooms?.map((room: I_CHATROOM) => (
+            <li className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full">
+              <img src={tmpImg} className="w-8 h-8 rounded-full" />
+              <div className="flex flex-col">
+                <h2 className="text-md">{room.name}</h2>
+                <h3 className="text-sm opacity-70">dummy data</h3>
+              </div>
+              <div className="flex flex-col gap-2 ml-auto">
+                <button className="ml-auto">
+                  <img src={tmpImg} className="w-6 h-6" />
+                </button>
+                <button className="ml-auto">
+                  <img src={tmpImg} className="w-6 h-6" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </aside>
       <CreateGroup
         isCreateGroupSectionOpen={isCreateGroupSectionOpen}
@@ -79,9 +113,6 @@ export const Home: React.FC = () => {
           setIsDisplayFriendRequestSectionOpen
         }
       />
-      <section className="ml-20">
-        <button onClick={handleLogout}>LOGOUT</button>
-      </section>
     </main>
   );
 };
