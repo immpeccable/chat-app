@@ -21,7 +21,11 @@ export default function CreateFriendRequest({
   const [searchParam, setSearchParam] = useState("");
   const debouncedSearchParam = useDebounceValue(searchParam, DEBOUNCE_TIMEOUT);
   const navigate = useNavigate();
-  const { isLoading, data, refetch } = useQuery({
+  const {
+    isLoading,
+    data,
+    refetch: refetchPossibleFriends,
+  } = useQuery({
     queryFn: () => findByUsername(debouncedSearchParam),
     queryKey: ["findByUsername"],
     onError: (err: AxiosError) => {
@@ -34,12 +38,18 @@ export default function CreateFriendRequest({
 
   useEffect(() => {
     if (!debouncedSearchParam) return;
-    refetch();
+    refetchPossibleFriends();
   }, [debouncedSearchParam]);
 
   const { mutate: createFriendRequest } = useMutation({
     mutationFn: (to: I_USER) => sendFriendRequest(to),
     mutationKey: ["sendFriendRequest"],
+    onSuccess: () => {
+      refetchPossibleFriends();
+    },
+    onError: (err) => {
+      console.error(err);
+    },
   });
 
   return (

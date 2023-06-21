@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { ENDPOINT } from "../../constants";
 import { I_FRIEND_REQUEST, I_USER } from "../../types";
 
@@ -13,10 +13,7 @@ export async function findByUsername(username: string) {
       Authorization: `Bearer ${jwt}`,
     },
   });
-  if (result.status == 200) {
-    return result.data;
-  }
-  return null;
+  return result.data;
 }
 
 export async function sendFriendRequest(to: I_USER) {
@@ -51,7 +48,7 @@ export async function displayFriendRequest() {
 
 export async function acceptFriendRequest(request: I_FRIEND_REQUEST) {
   const jwt = localStorage.getItem("jwt");
-
+  console.log("friend requests: ", request);
   const result = await axios.post(
     `${ENDPOINT}/accept-friend-request`,
     {
@@ -74,4 +71,19 @@ export async function rejectFriendRequest(request: I_FRIEND_REQUEST) {
   );
   console.log("rejct friend request: ", result);
   return result;
+}
+
+export async function fetchFriends(searchUsername: string): Promise<I_USER[]> {
+  const jwt = localStorage.getItem("jwt");
+
+  const result = await axios.get(`${ENDPOINT}/friends`, {
+    params: {
+      searchUsername: searchUsername,
+    },
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  console.log("friend requests: ", result);
+  return result.data.friends;
 }

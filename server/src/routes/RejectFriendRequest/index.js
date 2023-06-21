@@ -6,19 +6,19 @@ function endpoint(app) {
     try {
       const { request } = req.body;
       if (!request) return res.sendStatus(404);
-      if (request.from != req.user.username) {
+      if (request.to != req.user.username) {
         return res.sendStatus(401).json({
           message: "You are unathorized to do that.",
         });
       }
-      const from = await UserModel.find({
-        username: request.from,
-      });
-      const to = await UserModel.find({
-        username: request.to,
-      });
-      await UserModel.findOneAndRemove({
-        _id: from._id,
+      // const from = await UserModel.findOne({
+      //   username: request.from,
+      // });
+      // const to = await UserModel.findOne({
+      //   username: request.to,
+      // });
+      await FriendRequestModel.findOneAndRemove({
+        _id: request._id,
       });
       res.status(200).json({
         message: "Friend request is rejected successfully",

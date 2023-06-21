@@ -4,13 +4,11 @@ const { UserModel } = require("../models/index.js");
 
 const createJWT = (userData) => {
   const token = jwt.sign(userData, SECRET_KEY);
-  console.log(token);
   return token;
 };
 
 async function validateJWT(req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
-  console.log(token);
   if (!token) {
     return res.status(401).json({
       message: "No token provided",

@@ -1,9 +1,13 @@
 import React, { ReactNode, useRef, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
 import { I_FRIEND_REQUEST, I_USER } from "../../../types";
-import { useQuery } from "@tanstack/react-query";
-import { displayFriendRequest } from "../api";
-import { AxiosError } from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  acceptFriendRequest,
+  displayFriendRequest,
+  rejectFriendRequest,
+} from "../api";
+import { AxiosError, AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 
 interface I_PROPS {
@@ -17,17 +21,43 @@ export default function DisplayFriendRequest({
 }: I_PROPS): ReactNode {
   const [friendRequests, setFriendRequests] = useState<I_FRIEND_REQUEST[]>([]);
   const navigate = useNavigate();
-  const { isLoading } = useQuery({
-    queryFn: () => displayFriendRequest(),
-    queryKey: ["displayFriendRequest"],
-    onSuccess: (result) => {
-      setFriendRequests(result?.data.requests);
+
+  const { isLoading: displayLoading, refetch: refetchFriendRequests } =
+    useQuery({
+      queryFn: () => displayFriendRequest(),
+      queryKey: ["displayFriendRequest"],
+      onSuccess: (result) => {
+        setFriendRequests(result?.data.requests);
+      },
+      onError: (err: AxiosError) => {
+        if (err.response?.status == 401) {
+          navigate("/");
+          localStorage.removeItem("jwt");
+        }
+      },
+    });
+
+  const { isLoading: acceptLoading, mutate: acceptMutate } = useMutation({
+    mutationFn: (request: I_FRIEND_REQUEST) => acceptFriendRequest(request),
+    mutationKey: ["acceptFriendRequest"],
+    onSuccess: (res: AxiosResponse) => {
+      console.log("success: ", res);
+      refetchFriendRequests();
     },
     onError: (err: AxiosError) => {
-      if (err.response?.status == 401) {
-        navigate("/");
-        localStorage.removeItem("jwt");
-      }
+      console.log("error: ", err.response?.status);
+    },
+  });
+
+  const { isLoading: rejectLoading, mutate: rejectMutate } = useMutation({
+    mutationFn: (request: I_FRIEND_REQUEST) => rejectFriendRequest(request),
+    mutationKey: ["rejectFriendRequest"],
+    onSuccess: (res: AxiosResponse) => {
+      console.log("success: ", res);
+      refetchFriendRequests();
+    },
+    onError: (err: AxiosError) => {
+      console.log("error: ", err.response?.status);
     },
   });
 
@@ -65,9 +95,16 @@ export default function DisplayFriendRequest({
               </div>
               <div className="flex flex-col gap-2">
                 <button className="ml-auto">
-                  <img src={tmpImg} className="w-6 h-6" />
+                  <img
+                    onClick={() => acceptMutate(request)}
+                    src={tmpImg}
+                    className="w-6 h-6"
+                  />
                 </button>
-                <button className="ml-auto">
+                <button
+                  onClick={() => rejectMutate(request)}
+                  className="ml-auto"
+                >
                   <img src={tmpImg} className="w-6 h-6" />
                 </button>
               </div>
@@ -75,7 +112,6 @@ export default function DisplayFriendRequest({
           );
         })}
       </ul>
-      {/* you are supposed to render friends here */}
     </aside>
   );
 }

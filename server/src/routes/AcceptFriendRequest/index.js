@@ -4,26 +4,33 @@ const { createJWT, validateJWT } = require("../../validators/index.js");
 function endpoint(app) {
   app.post("/accept-friend-request", validateJWT, async (req, res) => {
     try {
-      const { request } = req.body;
-      if (!request) return res.sendStatus(404);
-      if (request.from != req.user.username) {
+      const {
+        from: fromUsername,
+        to: toUsername,
+        _id: requestId,
+      } = req.body.request;
+      if (!fromUsername || !toUsername) return res.sendStatus(404);
+
+      if (toUsername != req.user.username) {
         return res.sendStatus(401).json({
           message: "You are unathorized to do that.",
         });
       }
 
-      const from = await UserModel.find({
-        username: request.from,
+      console.log(fromUsername, toUsername, requestId);
+      const from = await UserModel.findOne({
+        username: fromUsername,
       });
-      const to = await UserModel.find({
-        username: request.to,
-      });
-      await UserModel.findOneAndRemove({
-        _id: from._id,
+      const to = await UserModel.findOne({
+        username: toUsername,
       });
 
-      from.friends.push(to);
-      to.friends.push(from);
+      await FriendRequestModel.findOneAndRemove({
+        _id: requestId,
+      });
+
+      from.friends.push(to._id);
+      to.friends.push(from._id);
 
       await from.save();
       await to.save();

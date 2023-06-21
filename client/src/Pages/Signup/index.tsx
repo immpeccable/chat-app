@@ -5,7 +5,6 @@ import { newUser } from "./api";
 import { useNavigate } from "react-router-dom";
 
 function reducer(state: I_USER, action: I_ACTION): I_USER {
-  console.log(state);
   switch (action.type) {
     case ACTION_TYPES.changeUsername: {
       return { ...state, username: action.value };
