@@ -35,7 +35,21 @@ async function validateJWT(req, res, next) {
   }
 }
 
+async function findJWTUser(jwt) {
+  const decoded = jwt.verify(token, SECRET_KEY); // Verify and decode the JWT
+
+  const user = await UserModel.findOne({ username: decoded.username });
+  if (!user) {
+    return res.status(401).json({
+      message: "Invalid token",
+    });
+  }
+
+  return user;
+}
+
 module.exports = {
   createJWT,
   validateJWT,
+  findJWTUser,
 };

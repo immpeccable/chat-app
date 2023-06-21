@@ -11,6 +11,8 @@ const password = process.env.password;
 const appname = process.env.appname;
 const uri = `mongodb+srv://${username}:${password}@${appname}.eizf3rb.mongodb.net/?retryWrites=true&w=majority`;
 const mongoose = require("mongoose");
+const { findJWTUser } = require("./validators");
+
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 async function run() {
   try {
@@ -45,12 +47,12 @@ async function main() {
   app.use(bodyParser.json());
   const server = http.createServer(app);
   await run();
-  // const io = socketIO(server, {
-  //   cors: {
-  //     origin: "http://localhost:5173",
-  //     credentials: true,
-  //   },
-  // });
+  const io = socketIO(server, {
+    cors: {
+      origin: "http://localhost:5173",
+      credentials: true,
+    },
+  });
 
   const PORT = process.env.PORT;
 
@@ -58,52 +60,55 @@ async function main() {
     console.log("listening on port " + PORT);
   });
 
-  // let chatrooms = new Map();
+  let chatrooms = new Map();
 
-  // io.on("connection", (socket) => {
-  //   console.log("connection is created!!");
-  //   socket.on("join", (room_id, user_id) => {
-  //     socket.join(room_id);
-  //     if (!chatrooms.has(room_id)) {
-  //       console.log("chatroom is created");
-  //       chatrooms.set(room_id, {
-  //         participants: new Set(),
-  //       });
-  //     }
-  //     console.log("participant is added");
-  //     chatrooms.get(room_id).participants.add(socket.id);
-  //     socket.room_id = room_id;
-  //   });
+  io.on("connection", async (socket) => {
+    console.log("token: ", socket.handshake.auth);
+    const user = await findJWTUser(socket.handshake.auth.jwt);
 
-  //   socket.on("leave", (room_id, user_id) => {
-  //     if (chatrooms.has(room_id)) {
-  //       socket.leave(room_id);
-  //       chatrooms.get(room_id).participants.delete(socket.id);
-  //       if (chatrooms.get(room_id).participants.size === 0) {
-  //         chatrooms.delete(room_id);
-  //       }
-  //     } else {
-  //       throw new Error("Cannot leave from unexisting room: ", room_id);
-  //     }
-  //   });
+    console.log("connection is created!!");
+    socket.on("join", (room_id, user_id) => {
+      socket.join(room_id);
+      if (!chatrooms.has(room_id)) {
+        console.log("chatroom is created");
+        chatrooms.set(room_id, {
+          participants: new Set(),
+        });
+      }
+      console.log("participant is added");
+      chatrooms.get(room_id).participants.add(socket.id);
+      socket.room_id = room_id;
+    });
 
-  //   socket.on("sendMessage", (room_id, message) => {
-  //     console.log(room_id, message);
-  //     io.to(room_id).emit("message", message);
-  //   });
+    socket.on("leave", (room_id, user_id) => {
+      if (chatrooms.has(room_id)) {
+        socket.leave(room_id);
+        chatrooms.get(room_id).participants.delete(socket.id);
+        if (chatrooms.get(room_id).participants.size === 0) {
+          chatrooms.delete(room_id);
+        }
+      } else {
+        throw new Error("Cannot leave from unexisting room: ", room_id);
+      }
+    });
 
-  //   socket.on("disconnect", () => {
-  //     const room_id = socket.room_id;
-  //     if (room_id && chatrooms.has(room_id)) {
-  //       chatrooms.get(room_id).participants.delete(socket.id);
-  //       if (chatrooms.get(room_id).participants.size === 0) {
-  //         chatrooms.delete(room_id);
-  //       }
-  //       // Emit an event to notify other users in the chatroom about the user disconnecting
-  //       // If no users are left in the chatroom, remove it from the active chatrooms list
-  //     }
-  //   });
-  // });
+    socket.on("sendMessage", (room_id, message) => {
+      console.log(room_id, message);
+      io.to(room_id).emit("message", message);
+    });
+
+    socket.on("disconnect", () => {
+      const room_id = socket.room_id;
+      if (room_id && chatrooms.has(room_id)) {
+        chatrooms.get(room_id).participants.delete(socket.id);
+        if (chatrooms.get(room_id).participants.size === 0) {
+          chatrooms.delete(room_id);
+        }
+        // Emit an event to notify other users in the chatroom about the user disconnecting
+        // If no users are left in the chatroom, remove it from the active chatrooms list
+      }
+    });
+  });
 
   const routeDir = path.join(__dirname, "routes");
   const routes = await fs.promises.readdir(routeDir);

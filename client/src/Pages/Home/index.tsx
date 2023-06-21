@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import tmpImg from "../../assets/react.svg";
 import CreateFriendRequest from "./components/CreateFriendRequest";
@@ -8,6 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { fetchChatrooms } from "./api";
 import { I_CHATROOM } from "../../types";
+import { ChatroomInterface } from "./components/ChatroomInterface";
+import { io, Socket } from "socket.io-client";
+import { ENDPOINT } from "../../constants";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -23,30 +26,50 @@ export const Home: React.FC = () => {
     setIsDisplayFriendRequestSectionOpen,
   ] = useState(false);
 
+  const [socket, setSocket] = useState<Socket>();
+
   const { data: chatrooms, isLoading: isChatroomsLoading } = useQuery({
     queryFn: fetchChatrooms,
     queryKey: ["getChatrooms"],
-    onSuccess: (res) => {
-      // console.log("chatrooms: ", res);
-    },
     onError: (err: AxiosError) => {
       console.log("chatrooms: ", err.response);
     },
   });
-  // console.log(isChatroomsLoading);
+
+  const [focusedChatroom, setFocusedChatroom] = useState<I_CHATROOM>();
+
+  useEffect(() => {
+    const jwt = localStorage.getItem("jwt");
+    console.log(jwt);
+    const newSocket = io(ENDPOINT, {
+      auth: {
+        token: jwt,
+      },
+    });
+    newSocket.emit("join");
+
+    newSocket.on(
+      "newMessage",
+      (username: string, message: string, chatroomID: string) => {
+        console.log(username, message, chatroomID);
+      }
+    );
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.emit("leaveChatroom");
+      newSocket.disconnect();
+    };
+  }, []);
 
   async function handleLogout() {
     localStorage.removeItem("jwt");
     navigate("/");
   }
 
-  //   const { refetch, isLoading } = useQuery({
-  //     queryFn: () => mockRequest(JWT),
-  //     queryKey: ["mock"],
-  //   });
-
   return (
-    <main className="flex flex-row">
+    <main className="flex flex-row h-[calc(100vh-2rem)]">
       <aside className="w-[30%] flex flex-col items-center border-r-white border-r-[1px] border-opacity-40">
         <header className="flex flex-row justify-between items-center bg-lightGreen p-4 w-full">
           <img
@@ -79,7 +102,10 @@ export const Home: React.FC = () => {
         </div>
         <ul className="mt-10 w-full px-4">
           {chatrooms?.map((room: I_CHATROOM) => (
-            <li className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full">
+            <li
+              onClick={() => setFocusedChatroom(room)}
+              className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full"
+            >
               <img src={tmpImg} className="w-8 h-8 rounded-full" />
               <div className="flex flex-col">
                 <h2 className="text-md">{room.name}</h2>
@@ -113,6 +139,7 @@ export const Home: React.FC = () => {
           setIsDisplayFriendRequestSectionOpen
         }
       />
+      {focusedChatroom && <ChatroomInterface {...focusedChatroom} />}
     </main>
   );
 };
