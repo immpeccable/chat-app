@@ -35,7 +35,7 @@ async function validateJWT(req, res, next) {
   }
 }
 
-async function findJWTUser(jwt) {
+async function findJWTUser(token) {
   const decoded = jwt.verify(token, SECRET_KEY); // Verify and decode the JWT
 
   const user = await UserModel.findOne({ username: decoded.username });

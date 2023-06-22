@@ -42,13 +42,11 @@ export async function displayFriendRequest() {
       Authorization: `Bearer ${jwt}`,
     },
   });
-  console.log("friend requests: ", result);
   return result;
 }
 
 export async function acceptFriendRequest(request: I_FRIEND_REQUEST) {
   const jwt = localStorage.getItem("jwt");
-  console.log("friend requests: ", request);
   const result = await axios.post(
     `${ENDPOINT}/accept-friend-request`,
     {
@@ -84,7 +82,6 @@ export async function fetchFriends(searchUsername: string): Promise<I_USER[]> {
       Authorization: `Bearer ${jwt}`,
     },
   });
-  console.log("friend requests: ", result);
   return result.data.friends;
 }
 
@@ -113,11 +110,25 @@ export async function createChatroom(
 
 export async function fetchChatrooms() {
   const jwt = localStorage.getItem("jwt");
-  const response = await axios.get(`${ENDPOINT}/chatrooms`, {
+  const response = await axios.get(`${ENDPOINT}/chatrooms-for-user`, {
     headers: {
       Authorization: `Bearer ${jwt}`,
     },
   });
-  console.log("chatrooms for user: ", response.data.chatrooms);
   return response.data.chatrooms;
+}
+
+export async function findChatroomById(chatroom_id: string) {
+  const jwt = localStorage.getItem("jwt");
+  console.log(chatroom_id);
+  const response = await axios.get(`${ENDPOINT}/chatroom-by-id`, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+    params: {
+      chatroom_id: chatroom_id,
+    },
+  });
+  console.log("response: ", response);
+  return response.data.chatroom;
 }

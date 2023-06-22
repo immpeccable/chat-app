@@ -17,7 +17,7 @@ function endpoint(app) {
     const participantsWithOwner = [...participants, owner];
 
     participantsWithOwner.forEach((participant) =>
-      participantIDs.push(participant._id)
+      participantIDs.push(participant._id.toString())
     );
 
     const chatroom = new ChatroomModel({

@@ -40,27 +40,19 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     const jwt = localStorage.getItem("jwt");
-    console.log(jwt);
     const newSocket = io(ENDPOINT, {
       auth: {
         token: jwt,
       },
     });
-    newSocket.emit("join");
 
     newSocket.on(
-      "newMessage",
+      "messageReceived",
       (username: string, message: string, chatroomID: string) => {
         console.log(username, message, chatroomID);
       }
     );
-
     setSocket(newSocket);
-
-    return () => {
-      newSocket.emit("leaveChatroom");
-      newSocket.disconnect();
-    };
   }, []);
 
   async function handleLogout() {
@@ -139,7 +131,9 @@ export const Home: React.FC = () => {
           setIsDisplayFriendRequestSectionOpen
         }
       />
-      {focusedChatroom && <ChatroomInterface {...focusedChatroom} />}
+      {focusedChatroom && socket && (
+        <ChatroomInterface chatroom={focusedChatroom} socket={socket} />
+      )}
     </main>
   );
 };

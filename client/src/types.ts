@@ -27,6 +27,7 @@ export interface I_MESSAGE {
 }
 
 export interface I_CHATROOM {
+  _id: string;
   owner: string;
   participants: (string | I_USER)[];
   authorized_participants: (string | I_USER)[];

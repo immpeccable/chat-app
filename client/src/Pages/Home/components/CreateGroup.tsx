@@ -28,9 +28,6 @@ export default function CreateGroup({
   const { refetch: refetchFriends, data: friends } = useQuery({
     queryFn: () => fetchFriends(debouncedSearchParam),
     queryKey: ["fetchFriends"],
-    onSuccess: (res) => {
-      console.log("friends: ", res);
-    },
     onError: (err) => {
       console.log("error: ", err);
     },

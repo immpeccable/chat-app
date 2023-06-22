@@ -6,7 +6,7 @@ const {
 const { validateJWT } = require("../../validators/index.js");
 
 function endpoint(app) {
-  app.get("/chatrooms", validateJWT, async (req, res) => {
+  app.get("/chatrooms-for-user", validateJWT, async (req, res) => {
     try {
       const loggedUser = await UserModel.findOne({
         username: req.user.username,

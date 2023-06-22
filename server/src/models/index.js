@@ -66,6 +66,11 @@ const MessageSchema = new Schema({
   content: { type: String, required: true },
 });
 
+MessageSchema.set("timestamps", true);
+ChatroomSchema.set("timestamps", true);
+UserSchema.set("timestamps", true);
+FriendRequestSchema.set("timestamps", true);
+
 const MessageModel = mongoose.model("Message", MessageSchema);
 const UserModel = mongoose.model("User", UserSchema);
 const FriendRequestModel = mongoose.model("FriendRequest", FriendRequestSchema);
