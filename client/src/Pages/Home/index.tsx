@@ -28,7 +28,7 @@ export const Home: React.FC = () => {
 
   const [socket, setSocket] = useState<Socket>();
 
-  const { data: chatrooms, isLoading: isChatroomsLoading } = useQuery({
+  const { data: chatrooms } = useQuery({
     queryFn: fetchChatrooms,
     queryKey: ["getChatrooms"],
     onError: (err: AxiosError) => {
