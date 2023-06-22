@@ -1,5 +1,5 @@
 export interface I_USER {
-  id: string;
+  _id: string;
   username: string;
   password: string;
   email: string;

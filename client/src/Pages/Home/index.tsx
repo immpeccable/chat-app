@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import tmpImg from "../../assets/react.svg";
 import CreateFriendRequest from "./components/CreateFriendRequest";
 import DisplayFriendRequest from "./components/DisplayFriendRequest";

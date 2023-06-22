@@ -1,6 +1,6 @@
-import React, { ReactNode, useRef, useState } from "react";
+import { ReactNode, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
-import { I_FRIEND_REQUEST, I_USER } from "../../../types";
+import { I_FRIEND_REQUEST } from "../../../types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   acceptFriendRequest,
@@ -22,22 +22,21 @@ export default function DisplayFriendRequest({
   const [friendRequests, setFriendRequests] = useState<I_FRIEND_REQUEST[]>([]);
   const navigate = useNavigate();
 
-  const { isLoading: displayLoading, refetch: refetchFriendRequests } =
-    useQuery({
-      queryFn: () => displayFriendRequest(),
-      queryKey: ["displayFriendRequest"],
-      onSuccess: (result) => {
-        setFriendRequests(result?.data.requests);
-      },
-      onError: (err: AxiosError) => {
-        if (err.response?.status == 401) {
-          navigate("/");
-          localStorage.removeItem("jwt");
-        }
-      },
-    });
+  const { refetch: refetchFriendRequests } = useQuery({
+    queryFn: () => displayFriendRequest(),
+    queryKey: ["displayFriendRequest"],
+    onSuccess: (result) => {
+      setFriendRequests(result?.data.requests);
+    },
+    onError: (err: AxiosError) => {
+      if (err.response?.status == 401) {
+        navigate("/");
+        localStorage.removeItem("jwt");
+      }
+    },
+  });
 
-  const { isLoading: acceptLoading, mutate: acceptMutate } = useMutation({
+  const { mutate: acceptMutate } = useMutation({
     mutationFn: (request: I_FRIEND_REQUEST) => acceptFriendRequest(request),
     mutationKey: ["acceptFriendRequest"],
     onSuccess: (res: AxiosResponse) => {
@@ -49,7 +48,7 @@ export default function DisplayFriendRequest({
     },
   });
 
-  const { isLoading: rejectLoading, mutate: rejectMutate } = useMutation({
+  const { mutate: rejectMutate } = useMutation({
     mutationFn: (request: I_FRIEND_REQUEST) => rejectFriendRequest(request),
     mutationKey: ["rejectFriendRequest"],
     onSuccess: (res: AxiosResponse) => {

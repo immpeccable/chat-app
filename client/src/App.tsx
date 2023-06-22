@@ -1,9 +1,8 @@
 import React from "react";
-import { BrowserRouter, Route, Outlet, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Landing } from "./Pages/Landing";
 import { Signup } from "./Pages/Signup";
 import { Login } from "./Pages/Login";
-import { Header } from "./Components/Header";
 import { Home } from "./Pages/Home";
 
 export const App: React.FC = () => {

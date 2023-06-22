@@ -1,6 +1,6 @@
 import React, { useReducer } from "react";
 import { I_ACTION, I_USER, ACTION_TYPES } from "../../types";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { newUser } from "./api";
 import { useNavigate } from "react-router-dom";
 
@@ -26,6 +26,7 @@ export const Signup: React.FC = () => {
     username: "",
     email: "",
     password: "",
+    _id: "",
   });
   const navigate = useNavigate();
 

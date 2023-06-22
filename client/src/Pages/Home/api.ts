@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { ENDPOINT } from "../../constants";
 import { I_FRIEND_REQUEST, I_USER } from "../../types";
 

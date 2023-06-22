@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
 import { useDebounceValue } from "../hooks/useDebounceValue";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -75,7 +75,7 @@ export default function CreateGroup({
         className="bg-inherit border-b-[.5px] border-opacity-10 text-sm opacity-80 w-[85%] py-1 outline-none mt-6"
       />
       <div className="flex flex-row flex-wrap w-[85%] mt-12 mb-2 gap-4">
-        {[...participants].map((participant, _) => (
+        {[...participants].map((participant) => (
           <div className="flex flex-row gap-3 items-center">
             <img src={tmpImg} alt="profile-image" className="w-4 h-4" />
             <h3 className="text-sm opacity-90">{participant.username}</h3>

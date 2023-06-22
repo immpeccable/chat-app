@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
 import { I_CHATROOM, I_MESSAGE } from "../../../types";
 import { Socket } from "socket.io-client";
@@ -20,7 +20,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
     queryKey: ["loggedUser"],
   });
 
-  const { refetch, isLoading } = useQuery({
+  const { refetch } = useQuery({
     queryFn: () => findChatroomById(id),
     queryKey: ["findChatroomById"],
     onSuccess: (res: I_CHATROOM) => {

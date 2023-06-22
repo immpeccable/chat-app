@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
 import { useDebounceValue } from "../hooks/useDebounceValue";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -21,11 +21,7 @@ export default function CreateFriendRequest({
   const [searchParam, setSearchParam] = useState("");
   const debouncedSearchParam = useDebounceValue(searchParam, DEBOUNCE_TIMEOUT);
   const navigate = useNavigate();
-  const {
-    isLoading,
-    data,
-    refetch: refetchPossibleFriends,
-  } = useQuery({
+  const { data, refetch: refetchPossibleFriends } = useQuery({
     queryFn: () => findByUsername(debouncedSearchParam),
     queryKey: ["findByUsername"],
     onError: (err: AxiosError) => {
