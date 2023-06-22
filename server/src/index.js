@@ -44,7 +44,12 @@ main().catch((err) => {
 
 async function main() {
   const app = express();
-  app.use(cors());
+  app.use(
+    cors({
+      origin: "https://tuna-chat-app.vercel.app/",
+      credentials: true,
+    })
+  );
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   const server = http.createServer(app);
