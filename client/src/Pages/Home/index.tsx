@@ -135,7 +135,7 @@ export const Home: React.FC = () => {
         }
       />
       {focusedChatroom && socket && (
-        <ChatroomInterface chatroom={focusedChatroom} socket={socket} />
+        <ChatroomInterface id={focusedChatroom._id} socket={socket} />
       )}
     </main>
   );

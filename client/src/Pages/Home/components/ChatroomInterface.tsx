@@ -6,17 +6,31 @@ import { useQuery } from "@tanstack/react-query";
 import { findChatroomById } from "../api";
 
 interface I_PROPS {
-  chatroom: I_CHATROOM;
+  id: string;
   socket: Socket;
 }
 
-export const ChatroomInterface = ({ chatroom, socket }: I_PROPS) => {
+export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
   const messageRef = useRef<HTMLInputElement>(null);
-  console.log("here is the chatroom: ", chatroom.messages);
   const [messages, setMessages] = useState<I_MESSAGE[]>([]);
+  const [chatroom, setChatroom] = useState<I_CHATROOM>();
+
+  const { refetch, isLoading } = useQuery({
+    queryFn: () => findChatroomById(id),
+    queryKey: ["findChatroomById"],
+    onSuccess: (res: I_CHATROOM) => {
+      setChatroom(res);
+    },
+  });
 
   useEffect(() => {
-    setMessages(chatroom.messages);
+    refetch();
+  }, [id]);
+
+  useEffect(() => {
+    if (chatroom) {
+      setMessages(chatroom.messages);
+    }
   }, [chatroom]);
 
   useEffect(() => {
@@ -25,25 +39,25 @@ export const ChatroomInterface = ({ chatroom, socket }: I_PROPS) => {
       (username: string, content: string, chatroomID: string) => {
         console.log("message received: ", username, content, chatroomID);
         console.log("this chatrooms info is: ", chatroom);
-        if (chatroomID == chatroom._id) {
+        if (chatroomID == id) {
           console.log("hello world we are on the same page");
           const message: I_MESSAGE = { from: username, content: content };
           setMessages([...messages, message]);
         }
       }
     );
-  }, [socket, chatroom]);
+  }, [socket, messages, id, chatroom]);
 
   function sendMessage() {
     if (!messageRef.current?.value) return;
-    socket.emit("messageSent", messageRef.current?.value, chatroom._id);
+    socket.emit("messageSent", messageRef.current?.value, id);
   }
 
   return (
     <section className="w-full flex flex-col">
       <header className="flex flex-row gap-4 items-center bg-lightGreen p-4 w-full ">
         <img src={tmpImg} alt="chatroom-image" />
-        <h3> {chatroom.name} </h3>
+        <h3> {chatroom?.name} </h3>
       </header>
 
       <ul className="grow bg-black h-[90vh] overflow-scroll">
