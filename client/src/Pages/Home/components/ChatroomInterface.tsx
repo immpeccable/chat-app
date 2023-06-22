@@ -25,6 +25,16 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
 
   useEffect(() => {
     refetch();
+    const messageInputElement: HTMLElement | null =
+      document.getElementById("message-content");
+
+    if (messageInputElement) {
+      messageInputElement.onkeydown = (e: KeyboardEvent) => {
+        if (e.key === "Enter") {
+          sendMessage((messageInputElement as HTMLInputElement).value);
+        }
+      };
+    }
   }, [id]);
 
   useEffect(() => {
@@ -37,10 +47,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
     socket.on(
       "messageReceived",
       (username: string, content: string, chatroomID: string) => {
-        console.log("message received: ", username, content, chatroomID);
-        console.log("this chatrooms info is: ", chatroom);
         if (chatroomID == id) {
-          console.log("hello world we are on the same page");
           const message: I_MESSAGE = { from: username, content: content };
           setMessages([...messages, message]);
         }
@@ -48,9 +55,18 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
     );
   }, [socket, messages, id, chatroom]);
 
-  function sendMessage() {
+  const sendMessage = (e: any) => {
     if (!messageRef.current?.value) return;
+    e.preventDefault();
     socket.emit("messageSent", messageRef.current?.value, id);
+    messageRef.current.value = "";
+  };
+
+  let curRenderedUsername = "",
+    pastRenderedUsername = "";
+
+  if (messages.length) {
+    curRenderedUsername = messages[messages.length - 1].from;
   }
 
   return (
@@ -60,15 +76,55 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
         <h3> {chatroom?.name} </h3>
       </header>
 
-      <ul className="grow bg-black h-[90vh] overflow-scroll">
-        {messages.map((message) => (
-          <li>
-            {message.from}
-            {message.content}
-          </li>
-        ))}
+      <ul
+        id="message-list"
+        className="grow bg-black h-[80vh] overflow-scroll flex flex-col-reverse px-12 py-4 gap-4"
+      >
+        {messages
+          .slice()
+          .reverse()
+          .map((message: I_MESSAGE) => {
+            console.log("message: ", message);
+            pastRenderedUsername = curRenderedUsername;
+            curRenderedUsername = message.from;
+            const createdAt = new Date(message.createdAt!); // Assuming you have a valid date object in `createdAt`
+            const hourMinute = createdAt.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            console.log(hourMinute);
+
+            return message.from == "zaun6" ? (
+              <li className="flex flex-row gap-3 bg-midGreen ml-auto py-1 px-4 text-sm rounded-lg">
+                {message.content}
+              </li>
+            ) : (
+              <li className="flex flex-row gap-3">
+                <img
+                  src={tmpImg}
+                  alt="profile-image"
+                  className={`w-4 h-4 rounded-full ${
+                    pastRenderedUsername != message.from
+                      ? "visible"
+                      : "invisible"
+                  }`}
+                />
+                <div className="flex flex-row bg-lightGreen rounded-lg px-2 py-1 relative gap-4">
+                  <div className="flex flex-col">
+                    {pastRenderedUsername != message.from && (
+                      <h2 className="text-red-600 text-sm">{message.from}</h2>
+                    )}
+
+                    <h3 className="text-sm"> {message.content}</h3>
+                  </div>
+
+                  <h4 className="text-[0.6rem] mt-auto">{hourMinute}</h4>
+                </div>
+              </li>
+            );
+          })}
       </ul>
-      <div className="bg-lightGreen py-2   flex flex-row items-center gap-4 px-6">
+      <form className="bg-lightGreen py-2   flex flex-row items-center gap-4 px-6">
         <img src={tmpImg} alt="first" className="w-6 h-6" />
         <img src={tmpImg} alt="second" className="w-6 h-6" />
         <input
@@ -78,14 +134,12 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
           className=" py-2 px-4 bg-lighterGreen grow rounded-lg outline-none text-sm"
           ref={messageRef}
         />
-        <img
-          onClick={sendMessage}
-          src={tmpImg}
-          alt="third"
-          className="w-6 h-6"
-        />
+
+        <button onClick={sendMessage}>
+          <img src={tmpImg} className="w-6 h-6" />
+        </button>
         <img src={tmpImg} alt="last" className="w-6 h-6" />
-      </div>
+      </form>
     </section>
   );
 };

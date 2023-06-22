@@ -24,6 +24,7 @@ export interface I_FRIEND_REQUEST {
 export interface I_MESSAGE {
   from: string;
   content: string;
+  createdAt?: string;
 }
 
 export interface I_CHATROOM {
