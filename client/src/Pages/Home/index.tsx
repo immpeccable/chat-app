@@ -6,7 +6,7 @@ import DisplayFriendRequest from "./components/DisplayFriendRequest";
 import CreateGroup from "./components/CreateGroup";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
-import { fetchChatrooms } from "./api";
+import { fetchChatrooms, getLoggedUser } from "./api";
 import { I_CHATROOM } from "../../types";
 import { ChatroomInterface } from "./components/ChatroomInterface";
 import { io, Socket } from "socket.io-client";
@@ -55,6 +55,11 @@ export const Home: React.FC = () => {
     setSocket(newSocket);
   }, []);
 
+  const { data: user } = useQuery({
+    queryFn: getLoggedUser,
+    queryKey: ["loggedUser"],
+  });
+
   async function handleLogout() {
     localStorage.removeItem("jwt");
     navigate("/");
@@ -69,6 +74,7 @@ export const Home: React.FC = () => {
             alt="profile-photo"
             className="w-8 h-8 rounded-full"
           />
+          <h2> {user?.username} </h2>
           <ul className="flex flex-row gap-2 items-center">
             <li
               onClick={() => setIsDisplayFriendRequestSectionOpen(true)}
@@ -117,6 +123,13 @@ export const Home: React.FC = () => {
             </li>
           ))}
         </ul>
+
+        <button
+          className="mt-auto bg-lightGreen w-full py-2 mr-4 rounded-lg hover:bg-white hover:bg-opacity-[.15]"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
       </aside>
       <CreateGroup
         isCreateGroupSectionOpen={isCreateGroupSectionOpen}

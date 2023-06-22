@@ -48,7 +48,7 @@ export default function CreateGroup({
       className={`flex flex-col min-h-full items-center bg-darkGreen border-r-white border-r-[1px] border-opacity-40
        transition-all absolute left-4 top-4 duration-200 overflow-hidden ease-in-out z-20 ${
          isCreateGroupSectionOpen
-           ? "w-[calc(30%-.5rem)] visible"
+           ? "w-[calc(25%-2rem)] visible"
            : "w-0 invisible"
        }`}
     >

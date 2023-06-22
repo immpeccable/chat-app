@@ -132,3 +132,13 @@ export async function findChatroomById(chatroom_id: string) {
   console.log("response: ", response);
   return response.data.chatroom;
 }
+
+export async function getLoggedUser(): Promise<I_USER> {
+  const jwt = localStorage.getItem("jwt");
+  const response = await axios.get(`${ENDPOINT}/logged-user`, {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  return response.data.user;
+}
