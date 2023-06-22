@@ -51,7 +51,7 @@ async function main() {
   await run();
   const io = socketIO(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: "https://tuna-chat-app.vercel.app/",
       credentials: true,
     },
   });
