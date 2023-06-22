@@ -76,9 +76,9 @@ async function main() {
       const participants = chatroom.participants;
       participants.forEach((uid) => {
         console.log(uid);
-        if (active_users.has(uid)) {
+        if (active_users.has(uid.toString())) {
           active_users
-            .get(uid)
+            .get(uid.toString())
             .emit("messageReceived", user.username, content, room_id);
         }
       });

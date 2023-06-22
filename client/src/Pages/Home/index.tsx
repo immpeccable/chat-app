@@ -95,7 +95,10 @@ export const Home: React.FC = () => {
         <ul className="mt-10 w-full px-4">
           {chatrooms?.map((room: I_CHATROOM) => (
             <li
-              onClick={() => setFocusedChatroom(room)}
+              onClick={() => {
+                console.log("room: ", room);
+                setFocusedChatroom(room);
+              }}
               className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full"
             >
               <img src={tmpImg} className="w-8 h-8 rounded-full" />

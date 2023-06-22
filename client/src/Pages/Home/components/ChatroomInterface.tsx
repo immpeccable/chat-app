@@ -12,24 +12,27 @@ interface I_PROPS {
 
 export const ChatroomInterface = ({ chatroom, socket }: I_PROPS) => {
   const messageRef = useRef<HTMLInputElement>(null);
-  const [messages, setMessages] = useState<I_MESSAGE[]>(chatroom.messages);
+  console.log("here is the chatroom: ", chatroom.messages);
+  const [messages, setMessages] = useState<I_MESSAGE[]>([]);
 
-  const { isLoading } = useQuery({
-    queryFn: () => findChatroomById(chatroom._id),
-    queryKey: ["findChatroomById"],
-  });
+  useEffect(() => {
+    setMessages(chatroom.messages);
+  }, [chatroom]);
 
   useEffect(() => {
     socket.on(
       "messageReceived",
       (username: string, content: string, chatroomID: string) => {
+        console.log("message received: ", username, content, chatroomID);
+        console.log("this chatrooms info is: ", chatroom);
         if (chatroomID == chatroom._id) {
+          console.log("hello world we are on the same page");
           const message: I_MESSAGE = { from: username, content: content };
           setMessages([...messages, message]);
         }
       }
     );
-  }, [socket, chatroom, messages]);
+  }, [socket, chatroom]);
 
   function sendMessage() {
     if (!messageRef.current?.value) return;
