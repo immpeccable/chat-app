@@ -4,6 +4,8 @@ import { useDebounceValue } from "../hooks/useDebounceValue";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createChatroom, fetchFriends } from "../api";
 import { I_USER } from "../../../types";
+import { leftArrow } from "../../../assets";
+import { checkMark } from "../../../assets";
 
 interface I_PROPS {
   isCreateGroupSectionOpen: boolean;
@@ -48,7 +50,7 @@ export default function CreateGroup({
       className={`flex flex-col min-h-full items-center bg-darkGreen border-r-white border-r-[1px] border-opacity-40
        transition-all absolute left-4 top-4 duration-200 overflow-hidden ease-in-out z-20 ${
          isCreateGroupSectionOpen
-           ? "w-[calc(25%-2rem)] visible"
+           ? "w-[calc(33%-2rem)] visible"
            : "w-0 invisible"
        }`}
     >
@@ -60,7 +62,7 @@ export default function CreateGroup({
             onClick={() => setIsCreateGroupSectionOpen(false)}
             className="w-4 h-4"
           >
-            <img src={tmpImg} alt="back-button" />
+            <img src={leftArrow} alt="back-button" />
           </button>
           <h3 className="opacity-90 text-md font-semibold ml-12">
             Gruba katılımcı ekle
@@ -123,8 +125,8 @@ export default function CreateGroup({
         onClick={() => handleNewChatroom()}
       >
         <img
-          className="w-4 h-4 rounded-full"
-          src={tmpImg}
+          className="w-8 h-8 rounded-full"
+          src={checkMark}
           alt="create-group-button"
         />
       </button>

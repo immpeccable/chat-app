@@ -3,17 +3,20 @@ export interface I_USER {
   username: string;
   password: string;
   email: string;
+  profileImage?: any;
+  profileImageUrl?: string;
 }
 
 export interface I_ACTION {
   type: ACTION_TYPES;
-  value: string;
+  value: any;
 }
 
 export enum ACTION_TYPES {
   changeUsername,
   changePassword,
   changeEmail,
+  changeProfileImage,
 }
 
 export interface I_FRIEND_REQUEST {

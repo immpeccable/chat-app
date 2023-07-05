@@ -6,6 +6,7 @@ import { findByUsername, sendFriendRequest } from "../api";
 import { I_USER } from "../../../types";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import { leftArrow } from "../../../assets";
 
 interface I_PROPS {
   isCreateFriendRequestSectionOpen: boolean;
@@ -50,9 +51,9 @@ export default function CreateFriendRequest({
 
   return (
     <aside
-      className={`flex flex-col h-full items-center bg-darkGreen border-r-white border-r-[1px] border-opacity-40 transition-all absolute left-4 top-4 duration-200 overflow-hidden ease-in-out z-20 ${
+      className={`flex flex-col h-full items-center bg-darkGreen overflow-hidden border-r-white border-r-[1px] border-opacity-40 transition-all absolute left-4 top-4 duration-200 ease-in-out z-20 ${
         isCreateFriendRequestSectionOpen
-          ? "w-[calc(25%-2rem)] visible"
+          ? "w-[calc(33%-2rem)] visible"
           : "w-0 invisible"
       }`}
     >
@@ -64,7 +65,7 @@ export default function CreateFriendRequest({
             onClick={() => setIsCreateFriendRequestSectionOpen(false)}
             className="w-4 h-4"
           >
-            <img src={tmpImg} alt="back-button" />
+            <img src={leftArrow} alt="back-button" />
           </button>
           <h3 className="opacity-90 text-md font-semibold ml-12">
             Arkadaş Ekle

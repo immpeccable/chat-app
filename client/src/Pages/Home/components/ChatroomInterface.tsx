@@ -4,6 +4,7 @@ import { I_CHATROOM, I_MESSAGE } from "../../../types";
 import { Socket } from "socket.io-client";
 import { useQuery } from "@tanstack/react-query";
 import { findChatroomById, getLoggedUser } from "../api";
+import { sendIcon } from "../../../assets";
 
 interface I_PROPS {
   id: string;
@@ -25,11 +26,11 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
     queryKey: ["findChatroomById"],
     onSuccess: (res: I_CHATROOM) => {
       setChatroom(res);
+      setMessages(res.messages);
     },
   });
 
   useEffect(() => {
-    refetch();
     const messageInputElement: HTMLElement | null =
       document.getElementById("message-content");
 
@@ -40,13 +41,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
         }
       };
     }
-  }, [id]);
-
-  useEffect(() => {
-    if (chatroom) {
-      setMessages(chatroom.messages);
-    }
-  }, [chatroom]);
+  }, []);
 
   useEffect(() => {
     socket.on(
@@ -65,6 +60,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
     if (e instanceof KeyboardEvent) {
       e.preventDefault();
     }
+
     socket.emit("messageSent", messageRef.current?.value, id);
     messageRef.current.value = "";
   };
@@ -72,7 +68,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
   let futureRenderedUsername = "";
 
   return (
-    <section className="w-full flex flex-col">
+    <section className="flex flex-col grow">
       <header className="flex flex-row gap-4 items-center bg-lightGreen p-4 w-full ">
         <img src={tmpImg} alt="chatroom-image" />
         <h3> {chatroom?.name} </h3>
@@ -80,7 +76,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
 
       <ul
         id="message-list"
-        className="grow bg-black h-[80vh] overflow-scroll flex flex-col-reverse px-12 py-4 gap-4"
+        className="grow bg-black h-[80vh] flex flex-col-reverse px-12 py-4 gap-4"
       >
         {messages
           .slice()
@@ -145,7 +141,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
         />
 
         <button onClick={sendMessage}>
-          <img src={tmpImg} className="w-6 h-6" />
+          <img src={sendIcon} className="w-6 h-6" />
         </button>
         <img src={tmpImg} alt="last" className="w-6 h-6" />
       </form>

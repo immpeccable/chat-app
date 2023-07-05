@@ -22,6 +22,7 @@ const UserSchema = new Schema({
   chatrooms: { type: [], default: [], required: false },
   password: { type: String, required: true },
   friends: { type: [], default: [], required: false },
+  profile_image: { type: String, required: false, default: "" },
 });
 
 UserSchema.methods.setPassword = async function (password) {

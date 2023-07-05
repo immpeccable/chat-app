@@ -11,6 +11,12 @@ import { I_CHATROOM } from "../../types";
 import { ChatroomInterface } from "./components/ChatroomInterface";
 import { io, Socket } from "socket.io-client";
 import { ENDPOINT } from "../../constants";
+import {
+  createFriendRequestImage,
+  createGroupImage,
+  displayFriendRequestImage,
+  searchIcon,
+} from "../../assets";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -60,6 +66,8 @@ export const Home: React.FC = () => {
     queryKey: ["loggedUser"],
   });
 
+  console.log(user);
+
   async function handleLogout() {
     localStorage.removeItem("jwt");
     navigate("/");
@@ -67,10 +75,10 @@ export const Home: React.FC = () => {
 
   return (
     <main className="flex flex-row h-[calc(100vh-2rem)]">
-      <aside className="w-[30%] flex flex-col items-center border-r-white border-r-[1px] border-opacity-40">
+      <aside className="w-[calc(33%-1.5rem)] flex flex-col items-center border-r-white border-r-[1px] border-opacity-40">
         <header className="flex flex-row justify-between items-center bg-lightGreen p-4 w-full">
           <img
-            src={tmpImg}
+            src={user?.profileImageUrl || tmpImg}
             alt="profile-photo"
             className="w-8 h-8 rounded-full"
           />
@@ -78,20 +86,32 @@ export const Home: React.FC = () => {
           <ul className="flex flex-row gap-2 items-center">
             <li
               onClick={() => setIsDisplayFriendRequestSectionOpen(true)}
-              className=""
+              className="w-4 h-4 cursor-pointer"
             >
-              <img src={tmpImg} alt="icon" className="w-4 h-4" />
+              <img
+                src={displayFriendRequestImage}
+                alt="display-friends-request"
+                className="h-4 w-auto cursor-pointer"
+              />
             </li>
             <li onClick={() => setIsCreateFriendRequestSectionOpen(true)}>
-              <img src={tmpImg} alt="icon" className="w-4 h-4" />
+              <img
+                src={createFriendRequestImage}
+                alt="create-friend-request"
+                className="w-4 h-4 cursor-pointer"
+              />
             </li>
             <li onClick={() => setIsCreateGroupSectionOpen(true)}>
-              <img src={tmpImg} alt="icon" className="w-4 h-4" />
+              <img
+                src={createGroupImage}
+                alt="create-group"
+                className="w-4 h-4 cursor-pointer"
+              />
             </li>
           </ul>
         </header>
         <div className="flex flex-row text-white bg-lightGreen text-sm items-center rounded-md mt-2 w-[90%] gap-6">
-          <img src={tmpImg} alt="search-icon" className="w-4 h-4 ml-4" />
+          <img src={searchIcon} alt="search-icon" className="w-4 h-4 ml-4" />
           <input
             className="text-white placeholder-opacity-50 bg-inherit py-2 w-full outline-none"
             type="text"
@@ -101,6 +121,7 @@ export const Home: React.FC = () => {
         <ul className="mt-10 w-full px-4">
           {chatrooms?.map((room: I_CHATROOM) => (
             <li
+              key={"lef-side: " + room._id}
               onClick={() => {
                 console.log("room: ", room);
                 setFocusedChatroom(room);
@@ -125,7 +146,7 @@ export const Home: React.FC = () => {
         </ul>
 
         <button
-          className="mt-auto bg-lightGreen w-full py-2 mr-4 rounded-lg hover:bg-white hover:bg-opacity-[.15]"
+          className="mt-auto bg-lightGreen w-[calc(100%-1rem)] py-2 mr-4 rounded-lg hover:bg-white hover:bg-opacity-[.15]"
           onClick={handleLogout}
         >
           Logout
@@ -148,7 +169,11 @@ export const Home: React.FC = () => {
         }
       />
       {focusedChatroom && socket && (
-        <ChatroomInterface id={focusedChatroom._id} socket={socket} />
+        <ChatroomInterface
+          key={focusedChatroom._id}
+          id={focusedChatroom._id}
+          socket={socket}
+        />
       )}
     </main>
   );

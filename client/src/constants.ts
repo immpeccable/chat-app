@@ -1,1 +1,1 @@
-export const ENDPOINT = "https://tuna-chat-app.onrender.com";
+export const ENDPOINT = "http://localhost:3000";
