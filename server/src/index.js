@@ -13,7 +13,22 @@ const uri = `mongodb+srv://${username}:${password}@${appname}.eizf3rb.mongodb.ne
 const mongoose = require("mongoose");
 const { findJWTUser } = require("./validators");
 const { ChatroomModel, MessageModel } = require("./models");
-const { ObjectId } = require("mongodb");
+
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { GetObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+
+const bucketName = process.env.AWS_BUCKET_NAME;
+const region = process.env.AWS_BUCKET_REGION;
+const accessKeyId = process.env.AWS_ACCESS_KEY;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
+const s3Client = new S3Client({
+  region,
+  credentials: {
+    accessKeyId,
+    secretAccessKey,
+  },
+});
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 async function run() {
@@ -76,18 +91,36 @@ async function main() {
     socket.on("messageSent", async (content, room_id) => {
       const chatroom = await ChatroomModel.findById(room_id);
       const participants = chatroom.participants;
-      participants.forEach((uid) => {
+
+      const profile_image_url = await getSignedUrl(
+        s3Client,
+        new GetObjectCommand({
+          Bucket: bucketName,
+          Key: user.profile_image,
+        }),
+        { expiresIn: 360000 } // 60 seconds
+      );
+
+      participants.forEach(async (uid) => {
         console.log(uid);
         if (active_users.has(uid.toString())) {
           active_users
             .get(uid.toString())
-            .emit("messageReceived", user.username, content, room_id);
+            .emit(
+              "messageReceived",
+              user.username,
+              content,
+              profile_image_url,
+              room_id
+            );
         }
       });
       const message = new MessageModel({
-        from: user.username,
+        from_username: user.username,
         content: content,
+        from_profile_image: user.profile_image,
       });
+      console.log("new message saved: ", message);
       chatroom.messages.push(message);
       await message.save();
       await chatroom.save();

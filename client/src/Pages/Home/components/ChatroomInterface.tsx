@@ -21,7 +21,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
     queryKey: ["loggedUser"],
   });
 
-  const { refetch } = useQuery({
+  useQuery({
     queryFn: () => findChatroomById(id),
     queryKey: ["findChatroomById"],
     onSuccess: (res: I_CHATROOM) => {
@@ -46,9 +46,18 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
   useEffect(() => {
     socket.on(
       "messageReceived",
-      (username: string, content: string, chatroomID: string) => {
+      (
+        username: string,
+        content: string,
+        profile_image_url: string,
+        chatroomID: string
+      ) => {
         if (chatroomID == id) {
-          const message: I_MESSAGE = { from: username, content: content };
+          const message: I_MESSAGE = {
+            from_username: username,
+            content: content,
+            from_profile_image_url: profile_image_url,
+          };
           setMessages([...messages, message]);
         }
       }
@@ -76,14 +85,15 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
 
       <ul
         id="message-list"
-        className="grow bg-black h-[80vh] flex flex-col-reverse px-12 py-4 gap-4"
+        className="grow bg-black h-[80vh] flex flex-col-reverse px-12 py-4 gap-4 overflow-scroll"
       >
         {messages
           .slice()
           .reverse()
           .map((message: I_MESSAGE, i) => {
             if (i < messages.length - 1) {
-              futureRenderedUsername = messages[messages.length - i - 2].from;
+              futureRenderedUsername =
+                messages[messages.length - i - 2].from_username;
             } else {
               futureRenderedUsername = "";
             }
@@ -96,7 +106,7 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
               minute: "2-digit",
             });
 
-            return message.from == user?.username ? (
+            return message.from_username == user?.username ? (
               <li className="flex flex-row gap-3 bg-midGreen ml-auto py-1 pl-4 pr-16 text-sm rounded-lg relative">
                 <h3 className="text-sm"> {message.content}</h3>
                 <h4 className="text-[0.6rem] mt-auto absolute bottom-[1px] right-[6px]">
@@ -106,18 +116,20 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
             ) : (
               <li className="flex flex-row gap-3">
                 <img
-                  src={tmpImg}
+                  src={message.from_profile_image_url || tmpImg}
                   alt="profile-image"
-                  className={`w-4 h-4 rounded-full ${
-                    futureRenderedUsername != message.from
+                  className={`w-8 h-8 rounded-full ${
+                    futureRenderedUsername != message.from_username
                       ? "visible"
                       : "invisible"
                   }`}
                 />
                 <div className="flex flex-row bg-lightGreen rounded-lg px-2 py-1 relative gap-4">
                   <div className="flex flex-col">
-                    {futureRenderedUsername != message.from && (
-                      <h2 className="text-red-600 text-sm">{message.from}</h2>
+                    {futureRenderedUsername != message.from_username && (
+                      <h2 className="text-red-600 text-sm">
+                        {message.from_username}
+                      </h2>
                     )}
 
                     <h3 className="text-sm"> {message.content}</h3>

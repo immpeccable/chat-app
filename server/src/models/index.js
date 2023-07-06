@@ -63,8 +63,9 @@ const ChatroomSchema = new Schema({
 });
 
 const MessageSchema = new Schema({
-  from: { type: String, required: true, maxLength: 50 },
+  from_username: { type: String, required: true, maxLength: 50 },
   content: { type: String, required: true },
+  from_profile_image: { type: String, required: false },
 });
 
 MessageSchema.set("timestamps", true);

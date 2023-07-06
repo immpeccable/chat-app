@@ -34,13 +34,17 @@ export const Home: React.FC = () => {
 
   const [socket, setSocket] = useState<Socket>();
 
-  const { data: chatrooms } = useQuery({
+  const { data: chatrooms, refetch: refetchChatrooms } = useQuery({
     queryFn: fetchChatrooms,
     queryKey: ["getChatrooms"],
     onError: (err: AxiosError) => {
       console.log("chatrooms: ", err.response);
     },
   });
+
+  useEffect(() => {
+    refetchChatrooms();
+  }, [isCreateGroupSectionOpen]);
 
   const [focusedChatroom, setFocusedChatroom] = useState<I_CHATROOM>();
 
@@ -54,8 +58,13 @@ export const Home: React.FC = () => {
 
     newSocket.on(
       "messageReceived",
-      (username: string, message: string, chatroomID: string) => {
-        console.log(username, message, chatroomID);
+      (
+        username: string,
+        message: string,
+        profile_image_url: string,
+        chatroomID: string
+      ) => {
+        console.log(username, message, profile_image_url, chatroomID);
       }
     );
     setSocket(newSocket);
@@ -118,7 +127,7 @@ export const Home: React.FC = () => {
             placeholder="Arayın veya yeni sohbet başlatın"
           />
         </div>
-        <ul className="mt-10 w-full px-4">
+        <ul className="my-10 w-full px-4 overflow-y-scroll">
           {chatrooms?.map((room: I_CHATROOM) => (
             <li
               key={"lef-side: " + room._id}
@@ -153,16 +162,19 @@ export const Home: React.FC = () => {
         </button>
       </aside>
       <CreateGroup
+        key="create-group"
         isCreateGroupSectionOpen={isCreateGroupSectionOpen}
         setIsCreateGroupSectionOpen={setIsCreateGroupSectionOpen}
       />
       <CreateFriendRequest
+        key="create-friend-request"
         isCreateFriendRequestSectionOpen={isCreateFriendRequestSectionOpen}
         setIsCreateFriendRequestSectionOpen={
           setIsCreateFriendRequestSectionOpen
         }
       />
       <DisplayFriendRequest
+        key="display-friend-request"
         isDisplayFriendRequestSectionOpen={isDisplayFriendRequestSectionOpen}
         setIsDisplayFriendRequestSectionOpen={
           setIsDisplayFriendRequestSectionOpen

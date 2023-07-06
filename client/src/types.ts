@@ -25,9 +25,10 @@ export interface I_FRIEND_REQUEST {
 }
 
 export interface I_MESSAGE {
-  from: string;
+  from_username: string;
   content: string;
   createdAt?: string;
+  from_profile_image_url: string;
 }
 
 export interface I_CHATROOM {

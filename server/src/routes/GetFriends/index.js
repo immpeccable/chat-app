@@ -1,6 +1,22 @@
 const { UserModel, FriendRequestModel } = require("../../models/index.js");
 const { validateJWT } = require("../../validators/index.js");
 
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { GetObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+
+const bucketName = process.env.AWS_BUCKET_NAME;
+const region = process.env.AWS_BUCKET_REGION;
+const accessKeyId = process.env.AWS_ACCESS_KEY;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
+const s3Client = new S3Client({
+  region,
+  credentials: {
+    accessKeyId,
+    secretAccessKey,
+  },
+});
+
 function endpoint(app) {
   app.get("/friends", validateJWT, async (req, res) => {
     const { searchUsername } = req.query;
@@ -14,8 +30,27 @@ function endpoint(app) {
         username: { $regex: searchUsername },
         _id: { $in: loggedUser.friends },
       });
+
+      const promises = friends.map(async (friend) => {
+        const fr = Object.assign({}, friend)._doc;
+
+        fr.profileImageUrl = await getSignedUrl(
+          s3Client,
+          new GetObjectCommand({
+            Bucket: bucketName,
+            Key: friend.profile_image,
+          }),
+          { expiresIn: 360000 } // 60 seconds
+        );
+
+        return friend;
+      });
+
+      const results = await Promise.all(promises);
+      console.log("results: ", results);
+
       res.status(200).json({
-        friends: friends,
+        friends: results,
       });
     } catch (err) {
       console.error(err);

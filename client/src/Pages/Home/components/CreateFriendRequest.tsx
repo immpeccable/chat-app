@@ -84,8 +84,11 @@ export default function CreateFriendRequest({
       <ul className="w-full px-12 mt-8">
         {data?.users?.map((user: I_USER) => {
           return (
-            <li className="flex flex-row py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full">
-              <img src={tmpImg} className="w-8 h-8 rounded-full" />
+            <li className="flex flex-row py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full hover:bg-white hover:bg-opacity-10 px-2 cursor-pointer">
+              <img
+                src={user.profileImageUrl || tmpImg}
+                className="w-8 h-8 rounded-full"
+              />
               <div className="flex flex-col">
                 <h2 className="text-md">{user.username}</h2>
                 <h3 className="text-sm opacity-70">dummy data</h3>

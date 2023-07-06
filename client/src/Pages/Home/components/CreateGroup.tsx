@@ -39,6 +39,15 @@ export default function CreateGroup({
     mutationFn: () =>
       createChatroom([...participants], groupNameRef.current?.value),
     mutationKey: ["createChatroom"],
+    onSuccess: () => {
+      setIsCreateGroupSectionOpen(false);
+      setSearchParam("");
+      setParticipants(new Set());
+      const element: HTMLInputElement = document.getElementById(
+        "group-name"
+      ) as HTMLInputElement;
+      element.value = "";
+    },
   });
 
   useEffect(() => {
@@ -110,7 +119,10 @@ export default function CreateGroup({
                 }
                 className="flex flex-row py-2 cursor-pointer w-full  px-1 hover:bg-white hover:bg-opacity-5 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6"
               >
-                <img src={tmpImg} className="w-8 h-8 rounded-full" />
+                <img
+                  src={user.profileImageUrl || tmpImg}
+                  className="w-8 h-8 rounded-full"
+                />
                 <div className="flex flex-col">
                   <h2 className="text-md">{user.username}</h2>
                   <h3 className="text-sm opacity-70">dummy data</h3>
