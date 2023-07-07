@@ -3,7 +3,6 @@ import { I_ACTION, I_USER, ACTION_TYPES } from "../../types";
 import { useMutation } from "@tanstack/react-query";
 import { newUser } from "./api";
 import { useNavigate } from "react-router-dom";
-import { profileImagePlaceholder } from "../../assets";
 
 function reducer(state: I_USER, action: I_ACTION): I_USER {
   switch (action.type) {
