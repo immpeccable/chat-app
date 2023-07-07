@@ -18,8 +18,7 @@ const s3Client = new S3Client({
 
 function endpoint(app) {
   app.get("/logged-user", validateJWT, async (req, res) => {
-    let user = Object.assign({}, req.user);
-    user = user._doc;
+    let user = Object.assign({}, req.user)._doc;
     try {
       if (user.profile_image) {
         console.log("hello world");
