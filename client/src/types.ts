@@ -5,6 +5,7 @@ export interface I_USER {
   email: string;
   profileImage?: any;
   profileImageUrl?: string;
+  chatrooms: I_CHATROOM_STATE[];
 }
 
 export interface I_ACTION {
@@ -38,4 +39,11 @@ export interface I_CHATROOM {
   authorized_participants: (string | I_USER)[];
   name: string;
   messages: I_MESSAGE[];
+}
+
+export interface I_CHATROOM_STATE {
+  id: string;
+  last_message_count: number;
+  last_message_content: string;
+  last_message_from: string;
 }

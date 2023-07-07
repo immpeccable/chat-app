@@ -43,6 +43,16 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
     }
   }, []);
 
+
+  useEffect(() => {
+    // we should update the last seen message here on the database,
+
+
+    return () => {
+      // we should also update the last seen message here on the database.
+    }
+  }, [])
+
   useEffect(() => {
     socket.on(
       "messageReceived",

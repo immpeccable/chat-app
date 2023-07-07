@@ -7,7 +7,7 @@ import CreateGroup from "./components/CreateGroup";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { fetchChatrooms, getLoggedUser } from "./api";
-import { I_CHATROOM } from "../../types";
+import { I_CHATROOM, I_CHATROOM_STATE } from "../../types";
 import { ChatroomInterface } from "./components/ChatroomInterface";
 import { io, Socket } from "socket.io-client";
 import { ENDPOINT } from "../../constants";
@@ -34,11 +34,42 @@ export const Home: React.FC = () => {
 
   const [socket, setSocket] = useState<Socket>();
 
-  const { data: chatrooms, refetch: refetchChatrooms } = useQuery({
+  const [chatroomStates, setChatroomStates] = useState(
+    new Map<string, I_CHATROOM_STATE>()
+  );
+
+  const [chatrooms, setChatrooms] = useState(new Map<string, I_CHATROOM>());
+
+  const { data, refetch: refetchChatrooms } = useQuery({
     queryFn: fetchChatrooms,
     queryKey: ["getChatrooms"],
     onError: (err: AxiosError) => {
       console.log("chatrooms: ", err.response);
+    },
+    onSuccess(res) {
+      if (res) {
+        const map = new Map<string, I_CHATROOM>();
+
+        res.forEach((chr: I_CHATROOM) => {
+          map.set(chr._id, chr);
+        });
+        console.log("map: ", map);
+        setChatrooms(map);
+      }
+    },
+  });
+
+  const { data: user } = useQuery({
+    queryFn: getLoggedUser,
+    queryKey: ["loggedUser"],
+    onSuccess: () => {
+      if (user) {
+        const map = new Map<string, I_CHATROOM_STATE>();
+        user.chatrooms.forEach((chr) => {
+          map.set(chr.id, chr);
+        });
+        setChatroomStates(map);
+      }
     },
   });
 
@@ -64,18 +95,33 @@ export const Home: React.FC = () => {
         profile_image_url: string,
         chatroomID: string
       ) => {
-        console.log(username, message, profile_image_url, chatroomID);
+        const chatroom = chatrooms.get(chatroomID);
+        if (!chatroom) return;
+
+        chatroom?.messages.push({
+          from_profile_image_url: profile_image_url,
+          from_username: username,
+          content: message,
+        });
+
+        setChatrooms(new Map(chatrooms.set(chatroomID, chatroom)));
+
+        if (chatroomID == focusedChatroom?._id) {
+          const chatroomState = chatroomStates.get(chatroomID);
+          if (!chatroomState) return;
+
+          chatroomState.last_message_content = message;
+          chatroomState.last_message_count += 1;
+          chatroomState.last_message_from = username;
+
+          setChatroomStates(
+            new Map(chatroomStates.set(chatroomID, chatroomState))
+          );
+        }
       }
     );
     setSocket(newSocket);
   }, []);
-
-  const { data: user } = useQuery({
-    queryFn: getLoggedUser,
-    queryKey: ["loggedUser"],
-  });
-
-  console.log(user);
 
   async function handleLogout() {
     localStorage.removeItem("jwt");
@@ -128,18 +174,17 @@ export const Home: React.FC = () => {
           />
         </div>
         <ul className="my-10 w-full px-4 overflow-y-scroll">
-          {chatrooms?.map((room: I_CHATROOM) => (
+          {[...chatrooms]?.map(([key, value]) => (
             <li
-              key={"lef-side: " + room._id}
+              key={"left-side: " + key}
               onClick={() => {
-                console.log("room: ", room);
-                setFocusedChatroom(room);
+                setFocusedChatroom(value);
               }}
               className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full"
             >
               <img src={tmpImg} className="w-8 h-8 rounded-full" />
               <div className="flex flex-col">
-                <h2 className="text-md">{room.name}</h2>
+                <h2 className="text-md">{value.name}</h2>
                 <h3 className="text-sm opacity-70">dummy data</h3>
               </div>
               <div className="flex flex-col gap-2 ml-auto">
