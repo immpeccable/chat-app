@@ -123,6 +123,8 @@ export const Home: React.FC = () => {
     setSocket(newSocket);
   }, []);
 
+  console.log("chatrooms: ", chatrooms, "chatroom states: ", chatroomStates);
+
   async function handleLogout() {
     localStorage.removeItem("jwt");
     navigate("/");

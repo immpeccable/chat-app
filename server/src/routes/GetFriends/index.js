@@ -47,7 +47,6 @@ function endpoint(app) {
       });
 
       const results = await Promise.all(promises);
-      console.log("results: ", results);
 
       res.status(200).json({
         friends: results,

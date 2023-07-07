@@ -41,7 +41,6 @@ const FriendRequestSchema = new Schema({
 });
 
 FriendRequestSchema.methods.validateUniqueness = async function () {
-  console.log("hello validating");
   const request1 = await FriendRequestModel.find({
     from: this.to,
     to: this.from,
@@ -50,7 +49,6 @@ FriendRequestSchema.methods.validateUniqueness = async function () {
     from: this.from,
     to: this.to,
   });
-  console.log("herea re the requests: ", request1, request2);
   return !request1.length && !request2.length;
 };
 

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
 import { I_CHATROOM, I_MESSAGE } from "../../../types";
 import { Socket } from "socket.io-client";
-import { useQuery } from "@tanstack/react-query";
-import { findChatroomById, getLoggedUser } from "../api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { findChatroomById, getLoggedUser, updateChatroomState } from "../api";
 import { sendIcon } from "../../../assets";
 
 interface I_PROPS {
@@ -43,15 +43,25 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
     }
   }, []);
 
+  const { mutate: updateChatroom } = useMutation({
+    mutationKey: ["update-chatroom-state"],
+    mutationFn: () =>
+      updateChatroomState(
+        id,
+        messages.length,
+        messages[messages.length - 1].content,
+        messages[messages.length - 1].from_username
+      ),
+    onSuccess: (res) => {
+      console.log("update result: ", res);
+    },
+  });
 
   useEffect(() => {
-    // we should update the last seen message here on the database,
-
-
-    return () => {
-      // we should also update the last seen message here on the database.
+    if (messages.length > 0) {
+      updateChatroom();
     }
-  }, [])
+  }, [messages, updateChatroom]);
 
   useEffect(() => {
     socket.on(

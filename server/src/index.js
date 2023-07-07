@@ -120,7 +120,6 @@ async function main() {
         content: content,
         from_profile_image: user.profile_image,
       });
-      console.log("new message saved: ", message);
       chatroom.messages.push(message);
       await message.save();
       await chatroom.save();

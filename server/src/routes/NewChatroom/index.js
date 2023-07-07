@@ -8,7 +8,6 @@ const { createJWT, validateJWT } = require("../../validators/index.js");
 function endpoint(app) {
   app.post("/new-chatroom", validateJWT, async (req, res) => {
     try {
-      console.log("entred new chatroom");
       const { participants, groupName } = req.body;
       const owner = await UserModel.findOne({
         username: req.user.username,
@@ -30,14 +29,12 @@ function endpoint(app) {
 
       participantIDs.forEach(async (uid) => {
         const user = await UserModel.findById(uid);
-        console.log("user: ", user);
         user.chatrooms.push({
           id: chatroom._id,
           last_message_count: 0,
           last_message_content: "",
           last_message_from: "",
         });
-        console.log("user after edited: ", user);
         await user.save();
       });
 

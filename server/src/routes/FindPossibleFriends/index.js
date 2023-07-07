@@ -21,7 +21,6 @@ function endpoint(app) {
       const alreadySentRequests = await FriendRequestModel.find({
         from: req.user.username,
       });
-      console.log(alreadySentRequests);
       const friendRequestUsernameList = [];
 
       alreadySentRequests.forEach((req) => {

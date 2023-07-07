@@ -4,7 +4,6 @@ const { createJWT } = require("../../validators/index.js");
 function endpoint(app) {
   app.post("/login", async (req, res) => {
     const { username, password } = req.body;
-    console.log(username, password);
     try {
       const user = await UserModel.findOne({ username: username });
       if (!user) {

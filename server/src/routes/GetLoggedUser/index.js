@@ -22,7 +22,6 @@ function endpoint(app) {
     user = user._doc;
     try {
       if (user.profile_image) {
-        console.log("hello world");
         user.profileImageUrl = await getSignedUrl(
           s3Client,
           new GetObjectCommand({

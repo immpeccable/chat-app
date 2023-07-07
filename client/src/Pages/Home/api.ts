@@ -142,3 +142,28 @@ export async function getLoggedUser(): Promise<I_USER> {
   });
   return response.data.user;
 }
+
+export async function updateChatroomState(
+  chatroom_id: string,
+  last_message_count: number,
+  last_message_content: string,
+  last_message_from: string
+) {
+  const jwt = localStorage.getItem("jwt");
+
+  const response = await axios.post(
+    `${ENDPOINT}/update-chatroom-state`,
+    {
+      chatroom_id: chatroom_id,
+      last_message_count: last_message_count,
+      last_message_content: last_message_content,
+      last_message_from: last_message_from,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    }
+  );
+  return response;
+}
