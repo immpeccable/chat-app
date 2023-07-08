@@ -7,7 +7,7 @@
 
 body {
   margin: 0;
-  overflox-x: hidden;
+  overflow-x: hidden;
   color: white;
   font-size: 1.1rem;
   background-color: rgb(19, 27, 32);

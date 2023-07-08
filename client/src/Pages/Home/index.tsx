@@ -183,7 +183,7 @@ export const Home: React.FC = () => {
             }
             const lastMessage = value.messages[value.messages.length - 1];
             let lastMessageDate: Date = new Date(Date.now());
-            if (lastMessage.createdAt) {
+            if (lastMessage && lastMessage.createdAt) {
               lastMessageDate = new Date(lastMessage.createdAt); // Assuming you have a valid date object in `createdAt`
             }
             const hourMinute = lastMessageDate.toLocaleTimeString([], {
