@@ -174,34 +174,53 @@ export const Home: React.FC = () => {
           />
         </div>
         <ul className="my-10 w-full px-4 overflow-y-scroll">
-          {[...chatrooms]?.map(([key, value]) => (
-            <li
-              key={"left-side: " + key}
-              onClick={() => {
-                setFocusedChatroom(value);
-              }}
-              className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full"
-            >
-              <h3>
-                {" "}
-                {value.messages.length -
-                  (chatroomStates.get(key)?.last_message_count || 0)}{" "}
-              </h3>
-              <img src={tmpImg} className="w-8 h-8 rounded-full" />
-              <div className="flex flex-col">
-                <h2 className="text-md">{value.name}</h2>
-                <h3 className="text-sm opacity-70">dummy data</h3>
-              </div>
-              <div className="flex flex-col gap-2 ml-auto">
-                <button className="ml-auto">
-                  <img src={tmpImg} className="w-6 h-6" />
-                </button>
-                <button className="ml-auto">
-                  <img src={tmpImg} className="w-6 h-6" />
-                </button>
-              </div>
-            </li>
-          ))}
+          {[...chatrooms]?.map(([key, value]) => {
+            let notificationCount = 0;
+            const chr_state = chatroomStates.get(key);
+            if (chr_state) {
+              notificationCount =
+                value.messages.length - chr_state.last_message_count;
+            }
+            const lastMessage = value.messages[value.messages.length - 1];
+            let lastMessageDate: Date = new Date(Date.now());
+            if (lastMessage.createdAt) {
+              lastMessageDate = new Date(lastMessage.createdAt); // Assuming you have a valid date object in `createdAt`
+            }
+            const hourMinute = lastMessageDate.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+
+            return (
+              <li
+                key={"left-side: " + key}
+                onClick={() => {
+                  setFocusedChatroom(value);
+                }}
+                className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full"
+              >
+                <img src={tmpImg} className="w-8 h-8 rounded-full" />
+                <div className="flex flex-col">
+                  <h2 className="text-md">{value.name}</h2>
+                  <h3 className="text-sm opacity-70">dummy data</h3>
+                </div>
+                <div className="flex flex-col items-end justify-center ml-auto gap-[2px]">
+                  <h2
+                    className={`text-[12px] ${
+                      notificationCount ? "text-green-500" : "text-white"
+                    }`}
+                  >
+                    {hourMinute}
+                  </h2>
+                  {notificationCount > 0 && (
+                    <div className="w-5 h-5 rounded-full text-black text-[11px] bg-green-500 flex flex-row items-center justify-center">
+                      {notificationCount}
+                    </div>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
 
         <button
