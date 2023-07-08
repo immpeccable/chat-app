@@ -130,7 +130,7 @@ export const ChatroomInterface = ({ id, socket, refetchUser }: I_PROPS) => {
 
             return message.from_username == user?.username ? (
               <li className="flex flex-row gap-3 bg-midGreen ml-auto py-1 pl-4 pr-16 text-sm rounded-lg relative">
-                <h3 className="text-sm"> {message.content}</h3>
+                <h3 className="text-sm max-w-md"> {message.content}</h3>
                 <h4 className="text-[0.6rem] mt-auto absolute bottom-[1px] right-[6px]">
                   {hourMinute}
                 </h4>
@@ -154,7 +154,7 @@ export const ChatroomInterface = ({ id, socket, refetchUser }: I_PROPS) => {
                       </h2>
                     )}
 
-                    <h3 className="text-sm"> {message.content}</h3>
+                    <h3 className="text-sm max-w-md"> {message.content}</h3>
                   </div>
 
                   <h4 className="text-[0.6rem] mt-auto">{hourMinute}</h4>

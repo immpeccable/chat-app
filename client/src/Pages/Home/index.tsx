@@ -202,9 +202,11 @@ export const Home: React.FC = () => {
                 <img src={tmpImg} className="w-8 h-8 rounded-full" />
                 <div className="flex flex-col">
                   <h2 className="text-md">{value.name}</h2>
-                  <h3 className="text-sm opacity-70">dummy data</h3>
+                  <h3 className="text-sm opacity-70 w-[275px] whitespace-nowrap overflow-x-clip text-ellipsis">
+                    {lastMessage.from_username}: {lastMessage.content}
+                  </h3>
                 </div>
-                <div className="flex flex-col items-end justify-center ml-auto gap-[2px]">
+                <div className="flex flex-col items-end justify-center ml-auto w-[100px] gap-[2px]">
                   <h2
                     className={`text-[12px] ${
                       notificationCount > 0 ? "text-green-500" : "text-white"
