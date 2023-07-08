@@ -29,9 +29,7 @@ function endpoint(app) {
   app.post("/new-user", upload.single("profileImage"), async (req, res) => {
     const { username, email, password } = req.body;
     const file = req.file;
-    console.log(file);
     try {
-      console.log(username, email, password);
 
       const newUser = new UserModel({
         username: username,
@@ -64,7 +62,6 @@ function endpoint(app) {
       newUser
         .save()
         .then(() => {
-          console.log("User saved successfully");
           return res.status(200).json({
             message: "User created successfully",
           });

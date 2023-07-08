@@ -17,7 +17,6 @@ function endpoint(app) {
         });
       }
 
-      console.log(fromUsername, toUsername, requestId);
       const from = await UserModel.findOne({
         username: fromUsername,
       });

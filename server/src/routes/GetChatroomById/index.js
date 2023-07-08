@@ -25,14 +25,12 @@ function endpoint(app) {
   app.get("/chatroom-by-id", validateJWT, async (req, res) => {
     try {
       const { chatroom_id } = req.query;
-      console.log(chatroom_id);
       const chr = await ChatroomModel.findById(chatroom_id);
 
       const chatroom = Object.assign({}, chr)._doc;
 
       const promises = chatroom.messages.map(async (message, i) => {
         if (message.from_profile_image) {
-          console.log("inside some shit");
           message.from_profile_image_url = await getSignedUrl(
             s3Client,
             new GetObjectCommand({
@@ -47,7 +45,6 @@ function endpoint(app) {
 
       await Promise.all(promises);
 
-      console.log("chr by id: ", chatroom);
       res.status(200).json({
         chatroom: chatroom,
       });

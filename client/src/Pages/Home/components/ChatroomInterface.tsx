@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
-import { I_CHATROOM, I_MESSAGE } from "../../../types";
+import { I_CHATROOM, I_MESSAGE, I_USER } from "../../../types";
 import { Socket } from "socket.io-client";
-import { useQuery } from "@tanstack/react-query";
-import { findChatroomById, getLoggedUser } from "../api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { findChatroomById, getLoggedUser, updateChatroomState } from "../api";
 import { sendIcon } from "../../../assets";
 
 interface I_PROPS {
   id: string;
   socket: Socket;
+  refetchUser: () => unknown;
 }
 
-export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
+export const ChatroomInterface = ({ id, socket, refetchUser }: I_PROPS) => {
   const messageRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<I_MESSAGE[]>([]);
   const [chatroom, setChatroom] = useState<I_CHATROOM>();
@@ -42,6 +43,28 @@ export const ChatroomInterface = ({ id, socket }: I_PROPS) => {
       };
     }
   }, []);
+
+  const { mutate: updateChatroom } = useMutation({
+    mutationKey: ["update-chatroom-state"],
+    mutationFn: () =>
+      updateChatroomState(
+        id,
+        messages.length,
+        messages[messages.length - 1].content,
+        messages[messages.length - 1].from_username
+      ),
+    onSuccess: () => {
+      refetchUser();
+    },
+  });
+  console.log("component is rendered");
+  useEffect(() => {
+    if (messages.length > 0) {
+      console.log();
+      console.log("is chatroom updated");
+      updateChatroom();
+    }
+  }, [messages, updateChatroom]);
 
   useEffect(() => {
     socket.on(

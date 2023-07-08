@@ -14,8 +14,8 @@ function endpoint(app) {
 
       const chatroomIDS = loggedUser.chatrooms;
 
-      const promises = chatroomIDS.map(async (cid) => {
-        const chr = await ChatroomModel.findById(cid);
+      const promises = chatroomIDS.map(async (chatroom_state) => {
+        const chr = await ChatroomModel.findById(chatroom_state.id);
         return chr;
       });
 

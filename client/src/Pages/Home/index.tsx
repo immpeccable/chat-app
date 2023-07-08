@@ -7,7 +7,7 @@ import CreateGroup from "./components/CreateGroup";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { fetchChatrooms, getLoggedUser } from "./api";
-import { I_CHATROOM } from "../../types";
+import { I_CHATROOM, I_CHATROOM_STATE } from "../../types";
 import { ChatroomInterface } from "./components/ChatroomInterface";
 import { io, Socket } from "socket.io-client";
 import { ENDPOINT } from "../../constants";
@@ -34,19 +34,50 @@ export const Home: React.FC = () => {
 
   const [socket, setSocket] = useState<Socket>();
 
-  const { data: chatrooms, refetch: refetchChatrooms } = useQuery({
+  const [chatroomStates, setChatroomStates] = useState(
+    new Map<string, I_CHATROOM_STATE>()
+  );
+  const [focusedChatroom, setFocusedChatroom] = useState<I_CHATROOM>();
+
+  const [chatrooms, setChatrooms] = useState(new Map<string, I_CHATROOM>());
+
+  const { data, refetch: refetchChatrooms } = useQuery({
     queryFn: fetchChatrooms,
     queryKey: ["getChatrooms"],
     onError: (err: AxiosError) => {
       console.log("chatrooms: ", err.response);
     },
+    onSuccess(res) {
+      if (res) {
+        const map = new Map<string, I_CHATROOM>();
+
+        res.forEach((chr: I_CHATROOM) => {
+          map.set(chr._id, chr);
+        });
+        console.log("map: ", map);
+        setChatrooms(map);
+      }
+    },
+  });
+
+  const { data: user, refetch: refetchUser } = useQuery({
+    queryFn: getLoggedUser,
+    queryKey: ["loggedUser"],
+    onSuccess: (res) => {
+      if (res) {
+        const map = new Map<string, I_CHATROOM_STATE>();
+        res.chatrooms.forEach((chr) => {
+          map.set(chr.id, chr);
+        });
+        console.log("chatroom state map: ", chatroomStates);
+        setChatroomStates(map);
+      }
+    },
   });
 
   useEffect(() => {
     refetchChatrooms();
-  }, [isCreateGroupSectionOpen]);
-
-  const [focusedChatroom, setFocusedChatroom] = useState<I_CHATROOM>();
+  }, [isCreateGroupSectionOpen, refetchChatrooms]);
 
   useEffect(() => {
     const jwt = localStorage.getItem("jwt");
@@ -64,18 +95,33 @@ export const Home: React.FC = () => {
         profile_image_url: string,
         chatroomID: string
       ) => {
-        console.log(username, message, profile_image_url, chatroomID);
+        const chatroom = chatrooms.get(chatroomID);
+        if (!chatroom) return;
+
+        chatroom?.messages.push({
+          from_profile_image_url: profile_image_url,
+          from_username: username,
+          content: message,
+        });
+
+        setChatrooms(new Map(chatrooms.set(chatroomID, chatroom)));
+
+        if (chatroomID == focusedChatroom?._id) {
+          const chatroomState = chatroomStates.get(chatroomID);
+          if (!chatroomState) return;
+
+          chatroomState.last_message_content = message;
+          chatroomState.last_message_count += 1;
+          chatroomState.last_message_from = username;
+
+          setChatroomStates(
+            new Map(chatroomStates.set(chatroomID, chatroomState))
+          );
+        }
       }
     );
     setSocket(newSocket);
   }, []);
-
-  const { data: user } = useQuery({
-    queryFn: getLoggedUser,
-    queryKey: ["loggedUser"],
-  });
-
-  console.log(user);
 
   async function handleLogout() {
     localStorage.removeItem("jwt");
@@ -128,30 +174,53 @@ export const Home: React.FC = () => {
           />
         </div>
         <ul className="my-10 w-full px-4 overflow-y-scroll">
-          {chatrooms?.map((room: I_CHATROOM) => (
-            <li
-              key={"lef-side: " + room._id}
-              onClick={() => {
-                console.log("room: ", room);
-                setFocusedChatroom(room);
-              }}
-              className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full"
-            >
-              <img src={tmpImg} className="w-8 h-8 rounded-full" />
-              <div className="flex flex-col">
-                <h2 className="text-md">{room.name}</h2>
-                <h3 className="text-sm opacity-70">dummy data</h3>
-              </div>
-              <div className="flex flex-col gap-2 ml-auto">
-                <button className="ml-auto">
-                  <img src={tmpImg} className="w-6 h-6" />
-                </button>
-                <button className="ml-auto">
-                  <img src={tmpImg} className="w-6 h-6" />
-                </button>
-              </div>
-            </li>
-          ))}
+          {[...chatrooms]?.map(([key, value]) => {
+            let notificationCount = 0;
+            const chr_state = chatroomStates.get(key);
+            if (chr_state) {
+              notificationCount =
+                value.messages.length - chr_state.last_message_count;
+            }
+            const lastMessage = value.messages[value.messages.length - 1];
+            let lastMessageDate: Date = new Date(Date.now());
+            if (lastMessage.createdAt) {
+              lastMessageDate = new Date(lastMessage.createdAt); // Assuming you have a valid date object in `createdAt`
+            }
+            const hourMinute = lastMessageDate.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+
+            return (
+              <li
+                key={"left-side: " + key}
+                onClick={() => {
+                  setFocusedChatroom(value);
+                }}
+                className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full"
+              >
+                <img src={tmpImg} className="w-8 h-8 rounded-full" />
+                <div className="flex flex-col">
+                  <h2 className="text-md">{value.name}</h2>
+                  <h3 className="text-sm opacity-70">dummy data</h3>
+                </div>
+                <div className="flex flex-col items-end justify-center ml-auto gap-[2px]">
+                  <h2
+                    className={`text-[12px] ${
+                      notificationCount ? "text-green-500" : "text-white"
+                    }`}
+                  >
+                    {hourMinute}
+                  </h2>
+                  {notificationCount > 0 && (
+                    <div className="w-5 h-5 rounded-full text-black text-[11px] bg-green-500 flex flex-row items-center justify-center">
+                      {notificationCount}
+                    </div>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
 
         <button
@@ -185,6 +254,7 @@ export const Home: React.FC = () => {
           key={focusedChatroom._id}
           id={focusedChatroom._id}
           socket={socket}
+          refetchUser={refetchUser}
         />
       )}
     </main>
