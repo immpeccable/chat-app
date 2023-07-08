@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import tmpImg from "../../../assets/react.svg";
-import { I_CHATROOM, I_MESSAGE, I_USER } from "../../../types";
+import { I_CHATROOM, I_MESSAGE } from "../../../types";
 import { Socket } from "socket.io-client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { findChatroomById, getLoggedUser, updateChatroomState } from "../api";
@@ -57,7 +57,6 @@ export const ChatroomInterface = ({ id, socket, refetchUser }: I_PROPS) => {
       refetchUser();
     },
   });
-  console.log("component is rendered");
   useEffect(() => {
     if (messages.length > 0) {
       console.log();

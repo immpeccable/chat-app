@@ -41,7 +41,7 @@ export const Home: React.FC = () => {
 
   const [chatrooms, setChatrooms] = useState(new Map<string, I_CHATROOM>());
 
-  const { data, refetch: refetchChatrooms } = useQuery({
+  const { refetch: refetchChatrooms } = useQuery({
     queryFn: fetchChatrooms,
     queryKey: ["getChatrooms"],
     onError: (err: AxiosError) => {

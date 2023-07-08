@@ -30,11 +30,10 @@ export const Signup: React.FC = () => {
     email: "",
     password: "",
     _id: "",
+    chatrooms: [],
   });
 
   const navigate = useNavigate();
-
-  console.log(userState);
 
   const { mutate } = useMutation({
     mutationFn: () => newUser(userState),
