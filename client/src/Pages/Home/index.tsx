@@ -37,6 +37,7 @@ export const Home: React.FC = () => {
   const [chatroomStates, setChatroomStates] = useState(
     new Map<string, I_CHATROOM_STATE>()
   );
+  const [focusedChatroom, setFocusedChatroom] = useState<I_CHATROOM>();
 
   const [chatrooms, setChatrooms] = useState(new Map<string, I_CHATROOM>());
 
@@ -59,15 +60,16 @@ export const Home: React.FC = () => {
     },
   });
 
-  const { data: user } = useQuery({
+  const { data: user, refetch: refetchUser } = useQuery({
     queryFn: getLoggedUser,
     queryKey: ["loggedUser"],
-    onSuccess: () => {
-      if (user) {
+    onSuccess: (res) => {
+      if (res) {
         const map = new Map<string, I_CHATROOM_STATE>();
-        user.chatrooms.forEach((chr) => {
+        res.chatrooms.forEach((chr) => {
           map.set(chr.id, chr);
         });
+        console.log("chatroom state map: ", chatroomStates);
         setChatroomStates(map);
       }
     },
@@ -75,9 +77,7 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     refetchChatrooms();
-  }, [isCreateGroupSectionOpen]);
-
-  const [focusedChatroom, setFocusedChatroom] = useState<I_CHATROOM>();
+  }, [isCreateGroupSectionOpen, refetchChatrooms]);
 
   useEffect(() => {
     const jwt = localStorage.getItem("jwt");
@@ -122,8 +122,6 @@ export const Home: React.FC = () => {
     );
     setSocket(newSocket);
   }, []);
-
-  console.log("chatrooms: ", chatrooms, "chatroom states: ", chatroomStates);
 
   async function handleLogout() {
     localStorage.removeItem("jwt");
@@ -184,6 +182,11 @@ export const Home: React.FC = () => {
               }}
               className="flex flex-row cursor-pointer hover:bg-white hover:bg-opacity-5 py-2 items-center border-b-[1px] border-gray-100 border-opacity-20 gap-6 w-full"
             >
+              <h3>
+                {" "}
+                {value.messages.length -
+                  (chatroomStates.get(key)?.last_message_count || 0)}{" "}
+              </h3>
               <img src={tmpImg} className="w-8 h-8 rounded-full" />
               <div className="flex flex-col">
                 <h2 className="text-md">{value.name}</h2>
@@ -232,6 +235,7 @@ export const Home: React.FC = () => {
           key={focusedChatroom._id}
           id={focusedChatroom._id}
           socket={socket}
+          refetchUser={refetchUser}
         />
       )}
     </main>
