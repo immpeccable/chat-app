@@ -207,7 +207,7 @@ export const Home: React.FC = () => {
                 <div className="flex flex-col items-end justify-center ml-auto gap-[2px]">
                   <h2
                     className={`text-[12px] ${
-                      notificationCount ? "text-green-500" : "text-white"
+                      notificationCount > 0 ? "text-green-500" : "text-white"
                     }`}
                   >
                     {hourMinute}
